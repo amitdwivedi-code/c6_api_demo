@@ -103,7 +103,7 @@ WSGI_APPLICATION = 'carbon_calculator.wsgi.application'
 DATABASES = { 
     'default': { 
         'ENGINE': 'djongo', 
-        'NAME': 'carbon_calculator', 
+        'NAME': 'c6_api_demo', 
         'CLIENT': { 
             'host': env.str('MONGO_DATABASE_URL'),
             'ssl': env.bool('SSL_KEY',True)
