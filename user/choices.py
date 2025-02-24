@@ -1,0 +1,1 @@
+ROLES = ["ESG Lead", "Finance", "Plant Operations", "Company Secretary", "Human Resource"]

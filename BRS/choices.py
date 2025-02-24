@@ -1,0 +1,1 @@
+FREQUENCY_OF_ENGAGEMENT = ["Monthly","Quarterly","Half Yearly","Yearly"]
