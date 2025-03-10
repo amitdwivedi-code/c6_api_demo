@@ -328,7 +328,7 @@ class Electricity_Consumption_mwh_View(APIView):
             # import pdb; pdb.set_trace()
             if id is not None:
                 try:
-                    total_electricity_consumption = request.data.get('Elelctricity_Consumption_Apr', 0) + request.data.get('Electricity_Consumption_May', 0)  + request.data.get('Electricity_Consumption_Jun', 0) + request.data.get('Electricity_Consumption_Jul', 0) + request.data.get('Electricity_Consumption_Aug', 0) + request.data.get('Electricity_Consumption_Sep', 0) + request.data.get('Electricity_Consumption_Oct', 0) + request.data.get('Electricity_Consumption_Nov', 0) + request.data.get('Electricity_Consumption_Dec', 0) + request.data.get('Electricity_Consumption_Jan', 0) + request.data.get('Electricity_Consumption_Feb', 0) + request.data.get('Electricity_Consumption_Mar', 0)
+                    total_electricity_consumption = request.data.get('Electricity_Consumption_Apr', 0) + request.data.get('Electricity_Consumption_May', 0)  + request.data.get('Electricity_Consumption_Jun', 0) + request.data.get('Electricity_Consumption_Jul', 0) + request.data.get('Electricity_Consumption_Aug', 0) + request.data.get('Electricity_Consumption_Sep', 0) + request.data.get('Electricity_Consumption_Oct', 0) + request.data.get('Electricity_Consumption_Nov', 0) + request.data.get('Electricity_Consumption_Dec', 0) + request.data.get('Electricity_Consumption_Jan', 0) + request.data.get('Electricity_Consumption_Feb', 0) + request.data.get('Electricity_Consumption_Mar', 0)
                     request.data["Total_Electricity_Consumption"] = round(total_electricity_consumption, 2)
 
                     electricity_consumption_instance = Electricity_Consumption_mwh.objects.get(id=id)
