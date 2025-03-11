@@ -290,7 +290,7 @@ class Turn_over(APIView):
             request.data['id'] = id
 
             total_turnover = request.data.get('Turnover_Apr', 0) + request.data.get('Turnover_May', 0) + request.data.get('Turnover_Jun', 0) + request.data.get('Turnover_Jul', 0) + request.data.get('Turnover_Aug', 0) + request.data.get('Turnover_Sep', 0) + request.data.get('Turnover_Oct', 0) + request.data.get('Turnover_Nov', 0) + request.data.get('Turnover_Dec', 0) + request.data.get('Turnover_Jan', 0) + request.data.get('Turnover_Feb', 0) + request.data.get('Turnover_Mar', 0)
-            request.data["Total_Turnover"] = total_turnover
+            request.data["Total_Turnover"] = round(total_turnover, 2)
 
             serializer = TurnoverSerializer(data=request.data)
             if serializer.is_valid():
@@ -545,7 +545,7 @@ class Networth_View(APIView):
             request.data['id'] = id
 
             total_networth = request.data.get('Networth_Apr', 0) + request.data.get('Networth_May', 0) + request.data.get('Networth_Jun', 0) + request.data.get('Networth_Jul', 0) + request.data.get('Networth_Aug', 0) + request.data.get('Networth_Sep', 0) + request.data.get('Networth_Oct', 0) + request.data.get('Networth_Nov', 0) + request.data.get('Networth_Dec', 0) + request.data.get('Networth_Jan', 0) + request.data.get('Networth_Feb', 0) + request.data.get('Networth_Mar', 0)
-            request.data["Total_Networth"] = total_networth
+            request.data["Total_Networth"] = round(total_networth, 2)
 
             serializer = NetworthSerializer(data=request.data)
             if serializer.is_valid():
@@ -582,7 +582,7 @@ class Networth_View(APIView):
                     #     return Response({'message':'Entry for this Financial year already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
                     total_networth = request.data.get('Networth_Apr', 0) + request.data.get('Networth_May', 0) + request.data.get('Networth_Jun', 0) + request.data.get('Networth_Jul', 0) + request.data.get('Networth_Aug', 0) + request.data.get('Networth_Sep', 0) + request.data.get('Networth_Oct', 0) + request.data.get('Networth_Nov', 0) + request.data.get('Networth_Dec', 0) + request.data.get('Networth_Jan', 0) + request.data.get('Networth_Feb', 0) + request.data.get('Networth_Mar', 0)
-                    request.data["Total_Networth"] = total_networth
+                    request.data["Total_Networth"] = round(total_networth, 2)
 
                     networth_instance = Networth.objects.get(id=id)
                     serializer = NetworthSerializer(networth_instance, data=request.data)
