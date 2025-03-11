@@ -4274,7 +4274,8 @@ class Production_View(APIView):
             if id is not None:
                 try:
                     total_production = request.data.get('Production_Apr', 0) + request.data.get('Production_May', 0)  + request.data.get('Production_Jun', 0) + request.data.get('Production_Jul', 0) + request.data.get('Production_Aug', 0) + request.data.get('Production_Sep', 0) + request.data.get('Production_Oct', 0) + request.data.get('Production_Nov', 0) + request.data.get('Production_Dec', 0) + request.data.get('Production_Jan', 0) + request.data.get('Production_Feb', 0) + request.data.get('Production_Mar', 0)
-                    request.data["Total_Production"] = total_production
+                    request.data["Total_Production"] = round(total_production, 2)
+
 
                     production_instance = Production.objects.get(id=id)
                     serializer = ProductionSerializer(production_instance, data=request.data)
