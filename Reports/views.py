@@ -11133,6 +11133,11 @@ class Principle_6_Report_View(APIView):
                                    "current_total_scope2_emissions":round(current_total_scope2_emissions,2),
                                   "previous_total_scope2_emissions":round(previous_total_scope2_emissions,2)}],
 
+                        "Total_scope1_and_scope2_emission" :[{'unit': "Metric tons of CO2 equivalent",
+                                                              "current_total_emissions": round((current_total_scope1_emissions+current_total_scope2_emissions),2),
+                                                                "previous_total_emissions" :round((previous_total_scope1_emissions+previous_total_scope2_emissions),2)
+                                                              }],
+
                         "EI7_C": [{
                             "no_data15":"-",
                             "intensity_current":round((((current_total_scope1_emissions + current_total_scope2_emissions) / total_intensity_current))/10, 2) if total_intensity_current != 0 else 0,
@@ -11148,6 +11153,7 @@ class Principle_6_Report_View(APIView):
                         "EI7_F" :[{"no_data19":"-",
                                    "no_data20":"-",
                                    "no_data21":"-"}],
+                        
                         "EI7_Ans":EI7_Ans,
                         "EI8_Ans":[{"description_green_house":description_green_house}],
                         "EI9_A": [{"current_total_plastic_waste":round(current_total_plastic_waste,3), 
