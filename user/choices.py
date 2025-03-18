@@ -1,1 +1,1 @@
-ROLES = ["ESG Lead", "Finance", "Plant Operations", "Company Secretary", "Human Resource"]
+ROLES = ["Company Secretary", "ESG Lead", "Finance", "Human Resource", "Plant Operations"]

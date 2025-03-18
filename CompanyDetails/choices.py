@@ -1,4 +1,4 @@
-TYPE_OF_HOLDING = ["Holding", "Subsidiary", "Associate", "Joint Venture"]
+TYPE_OF_HOLDING = ["Associate", "Holding", "Joint Venture", "Subsidiary"]
 
 UNIT = ["Cr","Million"]
 
@@ -39,6 +39,6 @@ INDIAN_STATES = [
 
 SHARES_LISTED_ON = ['BSE','NSE']
  
-REPORTING_BOUNDARY = ['Standalone Basis','Consolidated  Basis']
+REPORTING_BOUNDARY = ['Consolidated  Basis', 'Standalone Basis']
 
-TYPE_OF_ASSURANCE = ['Limited Assurance','Reasonable  Assurance','Not Applicable'] 
+TYPE_OF_ASSURANCE = ['Limited Assurance', 'Not Applicable', 'Reasonable  Assurance'] 

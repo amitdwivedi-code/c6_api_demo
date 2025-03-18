@@ -1,20 +1,21 @@
-STAKE_HOLDER_GROUP = ["Investors","Shareholders","Customers","Communities","Employees And Workers","Value Chain Partners","Others","employees","investors & shareholders","suppliers","Government & Regulatory Bodies","Banks","Society & Communities"]
+STAKE_HOLDER_GROUP =  ["Banks", "Communities", "Customers", "Employees And Workers", "Government & Regulatory Bodies", "Investors", "Society & Communities", "Shareholders", "Value Chain Partners", "Others", "employees", "investors & shareholders", "suppliers"]
 
-VULNERABLE_MARGINALIZED_GROUP = ['Yes','No']
+VULNERABLE_MARGINALIZED_GROUP = ['No', 'Yes']
 
-CHANNELS_OF_COMMUNICATION = ['Email', 'Newspaper', 'Website','Community Meetings', 'Advertisement', "Customer Visits","Contractor Meetings","Virtual discussions","Website",'Other']
+CHANNELS_OF_COMMUNICATION = ["Advertisement", "Community Meetings", "Contractor Meetings", "Customer Visits", "Email", "Newspaper", "Other", "Virtual discussions", "Website"]
 
-FREQUENCY_OF_ENGAGEMENT = ["Monthly","Quarterly","Half Yearly","Yearly","As and when scheduled"]
+FREQUENCY_OF_ENGAGEMENT = ["As and when scheduled", "Half Yearly", "Monthly", "Quarterly", "Yearly"]
 
-INFORMATION_AVAILABLE_IN_PUBLIC_DOMAIN =  ['Yes','No']
+INFORMATION_AVAILABLE_IN_PUBLIC_DOMAIN =  ['No', 'Yes']
 
 SEGMENT = ["Employees","Workers"]
 
-OWNED = ['Yes','No']
+OWNED = ['No', 'Yes']
 
-BENEFIT_SHARED = ['Yes','No']
+BENEFIT_SHARED = ['No', 'Yes']
 
-TYPE_COMPLAINTS = ['Data Privacy','Advertising','Cyber-Security','Delivery of Essential Services','Restrictive Trade Practices','Unfair Trade Practices','Other']
+TYPE_COMPLAINTS = ["Advertising", "Cyber-Security", "Data Privacy", "Delivery of Essential Services", "Other", "Restrictive Trade Practices", "Unfair Trade Practices"]
 
-RECALL_TYPE =['Volunatry Recalls','Forced Recalls']
+
+RECALL_TYPE =['Forced Recalls', 'Volunatry Recalls']
 
