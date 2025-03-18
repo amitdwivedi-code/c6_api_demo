@@ -2321,7 +2321,7 @@ class FacilityList_View(APIView):
             # else:
             user_locations = request.user.location
             name_of_facility = Facilities.objects.filter(Name_of_Facility__in=user_locations).values_list('Name_of_Facility', flat=True).distinct()
-            name_of_facility = list(set(name_of_facility))
+            name_of_facility = sorted(set(name_of_facility), key=str.casefold)
 
 
             return Response(name_of_facility, status=status.HTTP_200_OK)
@@ -2873,7 +2873,7 @@ class FacilityListAdmin_View(APIView):
             user_role = request.user.role
             # if user_role == "ESG Lead" or user_role == "Company Secretary":
             name_of_facility = Facilities.objects.values_list('Name_of_Facility', flat=True).distinct()
-            name_of_facility = list(name_of_facility)  # Convert to list for serialization
+            name_of_facility = sorted(name_of_facility, key=str.casefold)  # Convert to list for serialization
         
             return Response(name_of_facility, status=status.HTTP_200_OK)
             # else:

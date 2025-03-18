@@ -4,7 +4,7 @@ Workforce choice
 
 GENDER = ["Female","Male"]
 
-TYPE = ["Permanent","Non-Permanent"]
+TYPE = ["Non-Permanent", "Permanent"]
 
 # SEGMENT = ["Employees","Workers"]
 
@@ -12,7 +12,7 @@ TYPE = ["Permanent","Non-Permanent"]
 Training choice
 """
 
-SEGMENT = ["Employees","Workers","Board Of Directors","Key Managerial Personnel"]
+SEGMENT = ["Board Of Directors", "Employees", "Key Managerial Personnel", "Workers"]
 
 
 """
@@ -24,17 +24,24 @@ Health and Sefty choice
 
 # TYPE = ["Permanent","Non-Permanent"]
 
-DEDUCTED_AND_DEPOSITED = ["Yes", "No"]
+DEDUCTED_AND_DEPOSITED = ["No", "Yes"]
 
 
 
 """
 GRAVIENCE  CHOICES
 """
-COMPLAINT_TYPE_OF_HEALTH_SAFETY = ["Working Conditions","Health & Safety"]
-COMPLAINT_TYPE_OF_HUMAN_RIGHTS = ["Sexual Harassement","Discrimination at workplace","Child Labour","Forced Labour/Involuntary Labour","Wages","Other Human Rights Related Issues"]
+COMPLAINT_TYPE_OF_HEALTH_SAFETY = ["Health & Safety", "Working Conditions"]
+COMPLAINT_TYPE_OF_HUMAN_RIGHTS =  [
+    "Child Labour",
+    "Discrimination at workplace",
+    "Forced Labour/Involuntary Labour",
+    "Other Human Rights Related Issues",
+    "Sexual Harassement",
+    "Wages"
+]
 SEGMENT_OF_CONFLICTS = ["Director","KMP"]
-SEGMENT_OF_RECEIVE_REDRESS = ["Worker","Employee"]
+SEGMENT_OF_RECEIVE_REDRESS = ["Employee", "Worker"]
 # TYPE = ["Permanent","Non Permanent"]
 
 
@@ -42,8 +49,8 @@ SEGMENT_OF_RECEIVE_REDRESS = ["Worker","Employee"]
 """
 policy and panelty Choices
 """
-MONETARY_TYPE = ["Penalty/Fine","Settelment","Compounding Fee"]
+MONETARY_TYPE = ["Compounding Fee", "Penalty/Fine", "Settelment"]
 
 NON_MONETARY_TYPE = ["Imprisonment","Punishment"]
 
-HAS_AN_APPEAL_BEEN_PREFFERED = ['Yes',"No","NA"]
+HAS_AN_APPEAL_BEEN_PREFFERED =  ["NA", "No", "Yes"]
