@@ -1980,7 +1980,7 @@ class IndianStatesList_View(APIView):
     def get(self, request):
         try:
             states_list = list(Indian_States_Cities_Obj.keys())
-            return Response(states_list, status=status.HTTP_200_OK)
+            return Response(sorted(states_list), status=status.HTTP_200_OK)
             
         except NameError:
             return Response({'error': 'Indian states list is not defined'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -2281,7 +2281,7 @@ class Cities_View(APIView):
                 # else:
                 #     cities = []  # Handle case where state_name doesn't exist       
 
-            return Response(cities, status=status.HTTP_200_OK)
+            return Response(sorted(cities), status=status.HTTP_200_OK)
         # except ObjectDoesNotExist:
         #     return Response({'error': 'Object not found'}, status=status.HTTP_404_NOT_FOUND)
         # except APIException as e:

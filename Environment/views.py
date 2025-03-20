@@ -608,7 +608,8 @@ class FuelTypeList_View(APIView):
     def get(self, request):
         try:
             fuel_types = EmissionFactors.objects.filter(Type_of_Emission='Fuel').values_list('Fuel', flat=True).distinct()
-            return Response(fuel_types, status=status.HTTP_200_OK)
+            sorted_list = sorted(fuel_types)
+            return Response(sorted_list, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
