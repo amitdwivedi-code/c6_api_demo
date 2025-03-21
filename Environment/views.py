@@ -6494,41 +6494,41 @@ class GeneratedTypeList_View(APIView):
 
 
 
-class Water_Consumption_Filter_View(APIView):
-    permission_classes = [IsAuthenticated]
+# class Water_Consumption_Filter_View(APIView):
+#     permission_classes = [IsAuthenticated]
    
-    def get(self,request):
-        try:
-            user_role = request.user.role
-            # if user_role == "Plant Operations" or user_role == "ESG Lead":
+#     def get(self,request):
+#         try:
+#             user_role = request.user.role
+#             # if user_role == "Plant Operations" or user_role == "ESG Lead":
 
-            facility = request.query_params.get('Facility')
-            production = Water_Consumption.objects.filter(Facility=facility).order_by('-Financial_Year', '-id')
+#             facility = request.query_params.get('Facility')
+#             production = Water_Consumption.objects.filter(Facility=facility).order_by('-Financial_Year', '-id')
 
-            page_size = request.query_params.get('page_size', 5)
-            paginator = Paginator(production, page_size)
-            page_number = request.query_params.get('page', 1)
+#             page_size = request.query_params.get('page_size', 5)
+#             paginator = Paginator(production, page_size)
+#             page_number = request.query_params.get('page', 1)
 
-            try:
-                paginated_queryset = paginator.page(page_number)
-            except EmptyPage:
-                return Response({'error': f'No data available on Page Number {page_number}'}, status=status.HTTP_204_NO_CONTENT)
-            except PageNotAnInteger:
-                return Response({'error': f'Invalid Page Number {page_number}'}, status=status.HTTP_400_BAD_REQUEST)
-            serializer = WaterConsumptionSerializer(paginated_queryset, many=True)
-            response_data = {
-                'data': serializer.data,
-                'page': int(page_number),
-                'total_pages': paginator.num_pages,
-                'count': paginator.count,
-            }
-            return Response(response_data, status=status.HTTP_200_OK)
+#             try:
+#                 paginated_queryset = paginator.page(page_number)
+#             except EmptyPage:
+#                 return Response({'error': f'No data available on Page Number {page_number}'}, status=status.HTTP_400_BAD_REQUEST)
+#             except PageNotAnInteger:
+#                 return Response({'error': f'Invalid Page Number {page_number}'}, status=status.HTTP_400_BAD_REQUEST)
+#             serializer = WaterConsumptionSerializer(paginated_queryset, many=True)
+#             response_data = {
+#                 'data': serializer.data,
+#                 'page': int(page_number),
+#                 'total_pages': paginator.num_pages,
+#                 'count': paginator.count,
+#             }
+#             return Response(response_data, status=status.HTTP_200_OK)
             
-            # else:
-            #     return Response({'error': 'This data can only accessed by Plant Operations or ESG Head.'}, status=status.HTTP_403_FORBIDDEN)
+#             # else:
+#             #     return Response({'error': 'This data can only accessed by Plant Operations or ESG Head.'}, status=status.HTTP_403_FORBIDDEN)
 
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+#         except Exception as e:
+#             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 class Waste_Generated_Filter_View(APIView):
     permission_classes = [IsAuthenticated]
