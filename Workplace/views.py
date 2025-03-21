@@ -3185,7 +3185,7 @@ class On_Health_And_Safety_Measures_View(APIView):
 
             count = On_Health_And_Safety_Measures.objects.filter(Financial_Year=year,Facility= facility,Segment=segment).count()
             if count > 0:
-                return Response({'error':'Entry for this Financial Year already exists'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error':'Entry for this Financial Year, Facility, Segment already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
             if On_Health_And_Safety_Measures.objects.count() == 0:
                 id = 1
@@ -3370,7 +3370,7 @@ class On_Human_Rights_Issues_And_Policies_View(APIView):
             
             count = On_Human_Rights_Issues_And_Policies.objects.filter(Financial_Year=year, Facility=facility , Segment = segment).count()
             if count > 0:
-                return Response({'error':'Entry for this Financial Year  And Facility already exists'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error':'Entry for this Financial Year, Facility, Segment already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
             if On_Human_Rights_Issues_And_Policies.objects.count() == 0:
                 id = 1
@@ -3653,7 +3653,7 @@ class Percentage_Covered_In_Wellbeing_Measures_View(APIView):
             segment = request.data.get('Segment')
             data = Percentage_Covered_In_Wellbeing_Measures.objects.filter(Financial_Year=financial_year, Type=type, Segment=segment)
             if data:
-                return Response({'error': 'Entry for this Financial Year already exists'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': 'Entry for this Financial Year, Type, Segment already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
             
             if Percentage_Covered_In_Wellbeing_Measures.objects.count() == 0:
@@ -3853,7 +3853,7 @@ class Retirement_Benefits_View(APIView):
             segment = request.data.get('Segment')
             data = Retirement_Benefits.objects.filter(Financial_Year=financial_year, Segment=segment)
             if data:
-                return Response({'error': 'Entry for this Financial Year already exists'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': 'Entry for this Financial Year, Segment already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
             if Retirement_Benefits.objects.count() == 0:
                 id = 1
@@ -4180,7 +4180,7 @@ class Lost_Time_Injury_Frequency_Rate_View(APIView):
 
             count = Lost_Time_Injury_Frequency_Rate.objects.filter(Financial_Year=year, Facility=facility,Segment=segment).count()
             if count > 0:
-                return Response({'error':'Entry for this Financial Year already exists'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error':'Entry for this Financial Year, Facility, Segment already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
             if Lost_Time_Injury_Frequency_Rate.objects.count() == 0:
                 id = 1
@@ -4343,7 +4343,7 @@ class Total_Work_Related_Injuries_View(APIView):
 
             count = Total_Work_Related_Injuries.objects.filter(Financial_Year=year, Facility=facility,Segment=segment).count()
             if count > 0:
-                return Response({'error':'Entry for this Financial Year And Facility Already Exists'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error':'Entry for this Financial Year, Facility, Segment Already Exists'}, status=status.HTTP_400_BAD_REQUEST)
 
             if Total_Work_Related_Injuries.objects.count() == 0:
                 id = 1
@@ -4517,7 +4517,7 @@ class No_Of_Fatalities_View(APIView):
             
             count = No_Of_Fatalities.objects.filter(Financial_Year=year, Facility=facility ,Segment = segment).count()
             if count > 0:
-                return Response({'error': 'Entry for this Financial Year And Facility Already Exists'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': 'Entry for this Financial Year, Facility, Segment Already Exists'}, status=status.HTTP_400_BAD_REQUEST)
 
             if No_Of_Fatalities.objects.count() == 0:
                 id = 1
@@ -4699,7 +4699,7 @@ class Injury_Or_Ill_Health_View(APIView):
             segment = request.data.get('Segment')
             count = Injury_Or_Ill_Health.objects.filter(Financial_Year=year, Facility=facility , Segment = segment).count()
             if count > 0:
-                return Response({'error': 'Entry for this Financial Year And Facility Already Exists'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': 'Entry for this Financial Year, Facility, Segment Already Exists'}, status=status.HTTP_400_BAD_REQUEST)
 
             if Injury_Or_Ill_Health.objects.count() == 0:
                 id = 1
@@ -5270,7 +5270,7 @@ class Receive_And_Redress_Grievance_Mechanism_View(APIView):
             segment = request.data.get('Segment')
             data = Receive_And_Redress_Grievance_Mechanism.objects.filter(Financial_Year=financial_year, Facility=facility, Segment=segment)
             if data:
-                return Response({'error': 'Entry for this Financial Year already exists'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': 'Entry for this Financial Year, Facility, Segment  already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
             if Receive_And_Redress_Grievance_Mechanism.objects.count() == 0:
                 id = 1
@@ -5597,7 +5597,7 @@ class  Health_and_safety_related_complaints_View(APIView):
             
             # Check if an entry for this financial year already exists
             if Health_and_safety_related_complaints.objects.filter(Financial_Year=financial_year,Complaint_Type=complaint_type).count() > 0:
-                return Response({'error': 'Entry for this Financial Year already exists'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': 'Entry for this Financial Year, Complaint Type  already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
             # Get the count of existing objects
             if Health_and_safety_related_complaints.objects.count() == 0:
@@ -5713,7 +5713,7 @@ class Human_Rights_related_complaints_View(APIView):
             
             # Check if an entry for this financial year already exists
             if Human_Rights_related_complaints.objects.filter(Financial_Year=financial_year,Complaint_Type=complaint_type).count() > 0:
-                return Response({'error': 'Entry for this Financial Year already exists'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': 'Entry for this Financial Year,  Complaint Type already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
             # Get the count of existing objects
             if Human_Rights_related_complaints.objects.count() == 0:
@@ -5831,7 +5831,7 @@ class Conflict_of_interest_complaints_View(APIView):
 
             # Check if an entry for this financial year already exists
             if Conflict_of_interest_complaints.objects.filter(Financial_Year=financial_year,Segment=segment).count() > 0:
-                return Response({'error': 'Entry for this Financial Year already exists'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': 'Entry for this Financial Year, Segment already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
             # Get the count of existing objects
             if Conflict_of_interest_complaints.objects.count() == 0:
@@ -6752,7 +6752,7 @@ class  Penalty_Monetary_View(APIView):
             
             # Check if an entry for this financial year already exists
             if Penalty_Monetary.objects.filter(Financial_Year=financial_year,Monetary_Type=type).count() > 0:
-                return Response({'error': 'Entry for this Financial Year already exists'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': 'Entry for this Financial Year, Monetary Type  already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
             # Get the count of existing objects
             if Penalty_Monetary.objects.count() == 0:
@@ -6898,7 +6898,7 @@ class  Penalty_Non_Monetary_View(APIView):
             
             # Check if an entry for this financial year already exists
             if Penalty_Non_Monetary.objects.filter(Financial_Year=financial_year,Non_Monetary_Type=non_monetary_type).count() > 0:
-                return Response({'error': 'Entry for this Financial Year already exists'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': 'Entry for this Financial Year, Type  already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
             # Get the count of existing objects
             if Penalty_Non_Monetary.objects.count() == 0:

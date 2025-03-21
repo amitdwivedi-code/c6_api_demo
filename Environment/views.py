@@ -3271,16 +3271,13 @@ class Refrigerant_Losses_View(APIView):
         try:
             Facility = request.data.get('Facility')
             Financial_Year = request.data.get('Financial_Year')
+            type = request.data.get('Type')
 
             # Check if an entry already exists for the given facility and financial year
-            if Refrigerant_Losses.objects.filter(Facility=Facility, Financial_Year=Financial_Year).count() > 0:
-                return Response({'error': 'Entry for this facility and financial year already exists'}, status=status.HTTP_400_BAD_REQUEST)
+            if Refrigerant_Losses.objects.filter(Facility=Facility, Financial_Year=Financial_Year, Type=type).count() > 0:
+                return Response({'error': 'Entry for this facility, financial year and type already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
-            # year = request.data.get('Financial_Year')
-            # count = Refrigerant_Losses.objects.filter(Financial_Year=year).count()
-            # if count > 0:
-            #     return Response({'message':'Entry for this Financial Year already exists'}, status=status.HTTP_400_BAD_REQUEST)
-
+            
             if Refrigerant_Losses.objects.count() == 0:
                 id = 1
             else:
