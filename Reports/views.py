@@ -6660,10 +6660,11 @@ class SectionCPrinciple3View(APIView):
                             else "-"
                         ),
                     }],
+                    
                   "Principle_3_EI_6_PEM_EMP": [
                         {
                             "grievances_redress_pem_emp": 
-                                f"{item['Yes_No'].upper()},{item['Description']}" 
+                                f"{item['Yes_No']},{item['Description']}" 
                                 if item["Yes_No"].lower() == "yes" and item.get("Description") 
                                 else "-"
                                 for item in grievances_redress_obj1
@@ -6676,7 +6677,7 @@ class SectionCPrinciple3View(APIView):
                     "Principle_3_EI_6_NON_EMP": [
                         {
                             "grievances_redress_non_pem_emp": 
-                                f"{item['Yes_No'].upper()},{item['Description']}"
+                                f"{item['Yes_No']},{item['Description']}"
                                 if item["Yes_No"] == "Yes"
                                 else "-"
                                 for item in grievances_redress_obj2
@@ -6689,7 +6690,7 @@ class SectionCPrinciple3View(APIView):
                     "Principle_3_EI_6_PEM_WRK": [
                         {
                             "grievances_redress_pem_wrk": 
-                                f"{item['Yes_No'].upper()},{item['Description']}"
+                                f"{item['Yes_No']},{item['Description']}"
                                 if item["Yes_No"] == "Yes"
                                 else "-"
                                 for item in grievances_redress_obj3
@@ -6702,7 +6703,7 @@ class SectionCPrinciple3View(APIView):
                     "Principle_3_EI_6_NON_WRK": [
                         {
                             "grievances_redress_non_pem_wrk": 
-                                f"{item['Yes_No'].upper()},{item['Description']}"
+                                f"{item['Yes_No']},{item['Description']}"
                                 if item["Yes_No"] == "Yes"
                                 else "-"
                                 for item in grievances_redress_obj4

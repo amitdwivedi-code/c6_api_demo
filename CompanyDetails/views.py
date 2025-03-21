@@ -1545,7 +1545,7 @@ class MarketsServed_View(APIView):
             year = request.data.get('Financial_Year')
             count = Markets_Served.objects.filter(Financial_Year=year).count()
             if count > 0:
-                return Response({'success':'Entry for this Financial year already exists'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error':'Entry for this Financial year already exists'}, status=status.HTTP_400_BAD_REQUEST)
             
             if Markets_Served.objects.count() == 0:
                 id = 1
