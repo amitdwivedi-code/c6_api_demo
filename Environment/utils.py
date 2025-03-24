@@ -1205,31 +1205,27 @@ def calculate_scope_1_emissions_by_facilities():
     return result
 
 
-
 def calculate_scope_1_emissions_fuel_onsite_combustion_2():
-    # Get a distinct list of Financial_Year
     from .models import Fuel_Consumption_Onsite_Combustion_General, EmissionFactors
+    
+    # Get distinct financial years and fuel types
     financial_years = Fuel_Consumption_Onsite_Combustion_General.objects.values_list('Financial_Year', flat=True).distinct()
-    financial_years_list = list(financial_years)
-
-    # Get a distinct list of Facilities
     fuel_types = Fuel_Consumption_Onsite_Combustion_General.objects.values_list('Fuel_Type', flat=True).distinct()
-    fuel_types_list = list(fuel_types)
-
+    
     result = []
-
-    for year in financial_years_list:
-        for ft in fuel_types_list:
+    
+    for year in financial_years:
+        for ft in fuel_types:
             record_json = {}
-            #breakpoint()
-            records = Fuel_Consumption_Onsite_Combustion_General.objects.filter(Financial_Year=year, Fuel_Type=ft).values_list('Financial_Year','Fuel_Type','Unit')
-            records_list = list(records)
-
-            if records_list:
+            records = Fuel_Consumption_Onsite_Combustion_General.objects.filter(Financial_Year=year, Fuel_Type=ft).values_list('Financial_Year', 'Fuel_Type', 'Unit')
+            
+            # Use a set to prevent duplicate unit processing
+            units = set(record[2] for record in records)
+            
+            if records:
                 record_json['Financial_Year'] = year
                 record_json['Fuel_Type'] = ft
-                units = [record[2] for record in records_list]
-
+                
                 emission_apr = 0.0
                 emission_may = 0.0
                 emission_jun = 0.0
@@ -1241,58 +1237,43 @@ def calculate_scope_1_emissions_fuel_onsite_combustion_2():
                 emission_dec = 0.0
                 emission_jan = 0.0
                 emission_feb = 0.0
-                emission_mar = 0.0            
+                emission_mar = 0.0
+                
                 for unit in units:
                     all_ef = EmissionFactors.objects.get(Type_of_Emission='Fuel', Fuel=ft, Unit=unit)
                     if all_ef:
-                        ef = all_ef.CO2E_Emission_Factor
-
-                        all_records = Fuel_Consumption_Onsite_Combustion_General.objects.filter(Financial_Year=year,Fuel_Type=ft,Unit=unit)
-
-                        for apr in all_records:
-
-                            fuel_consumption_apr = apr.Fuel_Consumption_Apr
-                            fuel_consumption_may = apr.Fuel_Consumption_May
-                            fuel_consumption_jun = apr.Fuel_Consumption_Jun
-                            fuel_consumption_jul = apr.Fuel_Consumption_Jul
-                            fuel_consumption_aug = apr.Fuel_Consumption_Aug
-                            fuel_consumption_sep = apr.Fuel_Consumption_Sep
-                            fuel_consumption_oct = apr.Fuel_Consumption_Oct
-                            fuel_consumption_nov = apr.Fuel_Consumption_Nov
-                            fuel_consumption_dec = apr.Fuel_Consumption_Dec
-                            fuel_consumption_jan = apr.Fuel_Consumption_Jan
-                            fuel_consumption_feb = apr.Fuel_Consumption_Feb
-                            fuel_consumption_mar = apr.Fuel_Consumption_Mar
-
-                            # Convert to Decimal128 for MongoDB
-                            ef = Decimal128(str(ef))
-                            fuel_consumption_apr = Decimal128(str(fuel_consumption_apr))
-                            fuel_consumption_may = Decimal128(str(fuel_consumption_may))
-                            fuel_consumption_jun = Decimal128(str(fuel_consumption_jun))
-                            fuel_consumption_jul = Decimal128(str(fuel_consumption_jul))
-                            fuel_consumption_aug = Decimal128(str(fuel_consumption_aug))
-                            fuel_consumption_sep = Decimal128(str(fuel_consumption_sep))
-                            fuel_consumption_oct = Decimal128(str(fuel_consumption_oct))
-                            fuel_consumption_nov = Decimal128(str(fuel_consumption_nov))
-                            fuel_consumption_dec = Decimal128(str(fuel_consumption_dec))
-                            fuel_consumption_jan = Decimal128(str(fuel_consumption_jan))
-                            fuel_consumption_feb = Decimal128(str(fuel_consumption_feb))
-                            fuel_consumption_mar = Decimal128(str(fuel_consumption_mar))
-
-                            # Calculate emissions
-                            emission_apr += float(ef.to_decimal()) * float(fuel_consumption_apr.to_decimal())
-                            emission_may += float(ef.to_decimal()) * float(fuel_consumption_may.to_decimal())
-                            emission_jun += float(ef.to_decimal()) * float(fuel_consumption_jun.to_decimal())
-                            emission_jul += float(ef.to_decimal()) * float(fuel_consumption_jul.to_decimal())
-                            emission_aug += float(ef.to_decimal()) * float(fuel_consumption_aug.to_decimal())
-                            emission_sep += float(ef.to_decimal()) * float(fuel_consumption_sep.to_decimal())
-                            emission_oct += float(ef.to_decimal()) * float(fuel_consumption_oct.to_decimal())
-                            emission_nov += float(ef.to_decimal()) * float(fuel_consumption_nov.to_decimal())
-                            emission_dec += float(ef.to_decimal()) * float(fuel_consumption_dec.to_decimal())
-                            emission_jan += float(ef.to_decimal()) * float(fuel_consumption_jan.to_decimal())
-                            emission_feb += float(ef.to_decimal()) * float(fuel_consumption_feb.to_decimal())
-                            emission_mar += float(ef.to_decimal()) * float(fuel_consumption_mar.to_decimal())
-
+                        ef = Decimal128(str(all_ef.CO2E_Emission_Factor))
+                    
+                    all_records = Fuel_Consumption_Onsite_Combustion_General.objects.filter(Financial_Year=year, Fuel_Type=ft, Unit=unit)
+                    
+                    for apr in all_records:
+                        fuel_consumption_apr = Decimal128(str(apr.Fuel_Consumption_Apr))
+                        fuel_consumption_may = Decimal128(str(apr.Fuel_Consumption_May))
+                        fuel_consumption_jun = Decimal128(str(apr.Fuel_Consumption_Jun))
+                        fuel_consumption_jul = Decimal128(str(apr.Fuel_Consumption_Jul))
+                        fuel_consumption_aug = Decimal128(str(apr.Fuel_Consumption_Aug))
+                        fuel_consumption_sep = Decimal128(str(apr.Fuel_Consumption_Sep))
+                        fuel_consumption_oct = Decimal128(str(apr.Fuel_Consumption_Oct))
+                        fuel_consumption_nov = Decimal128(str(apr.Fuel_Consumption_Nov))
+                        fuel_consumption_dec = Decimal128(str(apr.Fuel_Consumption_Dec))
+                        fuel_consumption_jan = Decimal128(str(apr.Fuel_Consumption_Jan))
+                        fuel_consumption_feb = Decimal128(str(apr.Fuel_Consumption_Feb))
+                        fuel_consumption_mar = Decimal128(str(apr.Fuel_Consumption_Mar))
+                        
+                        # Calculate emissions
+                        emission_apr += float(ef.to_decimal()) * float(fuel_consumption_apr.to_decimal())
+                        emission_may += float(ef.to_decimal()) * float(fuel_consumption_may.to_decimal())
+                        emission_jun += float(ef.to_decimal()) * float(fuel_consumption_jun.to_decimal())
+                        emission_jul += float(ef.to_decimal()) * float(fuel_consumption_jul.to_decimal())
+                        emission_aug += float(ef.to_decimal()) * float(fuel_consumption_aug.to_decimal())
+                        emission_sep += float(ef.to_decimal()) * float(fuel_consumption_sep.to_decimal())
+                        emission_oct += float(ef.to_decimal()) * float(fuel_consumption_oct.to_decimal())
+                        emission_nov += float(ef.to_decimal()) * float(fuel_consumption_nov.to_decimal())
+                        emission_dec += float(ef.to_decimal()) * float(fuel_consumption_dec.to_decimal())
+                        emission_jan += float(ef.to_decimal()) * float(fuel_consumption_jan.to_decimal())
+                        emission_feb += float(ef.to_decimal()) * float(fuel_consumption_feb.to_decimal())
+                        emission_mar += float(ef.to_decimal()) * float(fuel_consumption_mar.to_decimal())
+                
                 record_json["Emission_Apr"] = round(emission_apr, 2)
                 record_json["Emission_May"] = round(emission_may, 2)
                 record_json["Emission_Jun"] = round(emission_jun, 2)
@@ -1305,7 +1286,9 @@ def calculate_scope_1_emissions_fuel_onsite_combustion_2():
                 record_json["Emission_Jan"] = round(emission_jan, 2)
                 record_json["Emission_Feb"] = round(emission_feb, 2)
                 record_json["Emission_Mar"] = round(emission_mar, 2)
+                
                 result.append(record_json)
+    
     return result
 
 
@@ -1333,7 +1316,7 @@ def calculate_scope_1_emissions_fuel_onsite_vehicles_2():
             if records_list:
                 record_json['Financial_Year'] = year
                 record_json['Fuel_Type'] = ft
-                units = [record[2] for record in records_list]
+                units = set([record[2] for record in records_list])
 
                 emission_apr = 0.0
                 emission_may = 0.0
