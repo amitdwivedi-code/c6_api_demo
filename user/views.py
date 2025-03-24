@@ -33,11 +33,12 @@ from .choices import *
 from django.db.models import Q
 from .permissions_constant import esg_lead_permissions, role_wise_permissions, user_permissions
 # Create your views here.
+
 class UserSignup(APIView):
-    authentication_classes = []
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
+
         try:
             role = request.query_params.get('role', None)
             full_name = request.query_params.get('query_parameters', None)
