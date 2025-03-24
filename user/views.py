@@ -1085,6 +1085,7 @@ def error_formatter(errors):
             return f"'{field}': {message}"
 
 class EmployeesAccessControlAPI(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request, id=None):
         # import pdb; pdb.set_trace()
         employee_code = request.query_params.get('employee_code', None)
@@ -1190,6 +1191,7 @@ class EmployeesAccessControlAPI(APIView):
 
 
 class EmployeeRole(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         try:
             employee_code = request.query_params.get('employee_code', None)
@@ -1207,6 +1209,7 @@ class EmployeeRole(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class EmployeeCodes(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         try:
             employee_code = request.query_params.get('employee_code', None)
@@ -1241,6 +1244,7 @@ class EmployeeCodes(APIView):
         
 
 class ProjectAccess(APIView):
+    permission_classes = [IsAuthenticated]
     # def get(self, request):
     #     try:
     #         employee_code = request.query_params.get('employee_code', None)
