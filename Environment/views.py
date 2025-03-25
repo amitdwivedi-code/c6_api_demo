@@ -7462,7 +7462,8 @@ class Operations_In_Ecologically_Sensitive_Areas_View(APIView):
             for item in response_data:
                 try:
                     facility = Facilities.objects.filter(Name_of_Facility=item['Facility']).first()
-                    item['Operation'] = facility.Description_of_Operations
+                    if facility:
+                        item['Operation'] = facility.Description_of_Operations
                 except Facilities.DoesNotExist:
                     item['Operation'] = None
 
@@ -7495,7 +7496,8 @@ class Operations_In_Ecologically_Sensitive_Areas_View(APIView):
             facility_name = request.data.get('Facility')
             try:
                 facility = Facilities.objects.get(Name_of_Facility=facility_name)
-                request.data['Operation'] = facility.Description_of_Operations
+                if facility:
+                    request.data['Operation'] = facility.Description_of_Operations
             except Facilities.DoesNotExist:
                 request.data['Operation'] = None
             
