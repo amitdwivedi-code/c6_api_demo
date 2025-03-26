@@ -2135,12 +2135,12 @@ class Facilities_View(APIView):
                         activity_log_serializer.save()
 
                     
-                    esg_lead_users = User.objects.filter(role='ESG Lead')
+                    # esg_lead_users = User.objects.filter(role='ESG Lead')
 
-                    for user in esg_lead_users:
-                        if facility_name in user.location:
-                            user.location.remove(facility_name)
-                            user.save()
+                    # for user in esg_lead_users:
+                    #     if facility_name in user.location:
+                    #         user.location.remove(facility_name)
+                    #         user.save()
 
                     return Response({'success':'Data deleted successfully'},status=status.HTTP_204_NO_CONTENT)
                 except Facilities.DoesNotExist:
