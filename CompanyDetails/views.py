@@ -1060,7 +1060,7 @@ class BusinessActivityList_View(APIView):
             if not business_activity_list:
                 return Response({'error': 'List is empty or not defined'}, status=status.HTTP_404_NOT_FOUND)
 
-            return Response(business_activity_list, status=status.HTTP_200_OK)
+            return Response(sorted(business_activity_list,key=str.casefold), status=status.HTTP_200_OK)
 
         except NameError:
             return Response({'error': 'List is not defined'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -1080,7 +1080,7 @@ class ProductsServicesList_View(APIView):
             if not products_services_list:
                 return Response({'error': 'List is empty or not defined'}, status=status.HTTP_404_NOT_FOUND)
 
-            return Response(products_services_list, status=status.HTTP_200_OK)
+            return Response(sorted(products_services_list, key=str.casefold), status=status.HTTP_200_OK)
 
         except NameError:
             return Response({'error': 'List is not defined'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -2196,7 +2196,7 @@ class States_View(APIView):
 
             else:
                 states_list = ["Other"]
-            return Response(states_list, status=status.HTTP_200_OK)
+            return Response(sorted(states_list), status=status.HTTP_200_OK)
 
             # country = request.query_params.get('country', None)
 
