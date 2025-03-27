@@ -1,4 +1,4 @@
-STAKE_HOLDER_GROUP =  ["Banks", "Communities", "Customers", "Employees And Workers", "Government & Regulatory Bodies", "Investors", "Society & Communities", "Shareholders", "Value Chain Partners", "Others", "employees", "investors & shareholders", "suppliers"]
+STAKE_HOLDER_GROUP =  ["Banks", "Communities", "Customers", "Employees And Workers", "Government & Regulatory Bodies", "Investors", "Society & Communities", "Shareholders", "Value Chain Partners", "Others", "Employees", "Investors & Shareholders", "Suppliers"]
 
 VULNERABLE_MARGINALIZED_GROUP = ['No', 'Yes']
 
