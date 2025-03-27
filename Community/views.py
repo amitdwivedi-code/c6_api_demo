@@ -27,6 +27,8 @@ class StakeHolderGroupView(APIView):
     def get(self, request):
         try:
             stake_holder_group_list = STAKE_HOLDER_GROUP
+            stake_holder_group_list = sorted(stake_holder_group_list,key=str.casefold)
+
             if not stake_holder_group_list:
                 return Response({'error': 'Stakeholder group list is empty or not defined'}, status=status.HTTP_404_NOT_FOUND)
 
