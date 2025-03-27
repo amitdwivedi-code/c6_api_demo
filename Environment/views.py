@@ -3525,7 +3525,7 @@ class Life_Cycle_Perspective_Assessments_View(APIView):
             user_role = request.user.role
             # if user_role == "Plant Operations" or user_role == "ESG Lead":
 
-            life_cycle_perspective_assessments = Life_Cycle_Perspective_Assessments.objects.order_by('-id')
+            life_cycle_perspective_assessments = Life_Cycle_Perspective_Assessments.objects.order_by('-Year_of_Assessment')
 
             page_size = request.query_params.get('page_size', 5)
             paginator = Paginator(life_cycle_perspective_assessments, page_size)
@@ -5251,9 +5251,9 @@ class Water_Withdrawal_By_Source_View(APIView):
                 # if facility:
                 #     filter_kwargs['Facility'] = facility
                 if user_location:
-                    water_withdrawal = Water_withdrawal_By_Source.objects.filter(Facility__in=user_location).order_by('-id')
+                    water_withdrawal = Water_withdrawal_By_Source.objects.filter(Facility__in=user_location).order_by('-Financial_Year', '-id')
                 else:
-                    water_withdrawal = Water_withdrawal_By_Source.objects.all().order_by('-id')
+                    water_withdrawal = Water_withdrawal_By_Source.objects.all().order_by('-Financial_Year', '-id')
                     
                 page_size = request.query_params.get('page_size', 5)
                 paginator = Paginator(water_withdrawal, page_size)
@@ -5406,9 +5406,9 @@ class Water_Consumption_View(APIView):
             # if facility:
             #         filter_kwargs['Facility'] = facility
             if user_location:
-                water_consumption = Water_Consumption.objects.filter(Facility__in=user_location).order_by('-id')
+                water_consumption = Water_Consumption.objects.filter(Facility__in=user_location).order_by('-Financial_Year', '-id')
             else:
-                water_consumption = Water_Consumption.objects.all().order_by('-id')
+                water_consumption = Water_Consumption.objects.all().order_by('-Financial_Year', '-id')
                 
 
             
@@ -5770,9 +5770,9 @@ class Water_Discharge_To_Destination_Without_Treatment_View(APIView):
             # if facility:
             #     filter_kwargs['Facility'] = facility
             if user_location:
-                water_Discharge_Without_Treatment = Water_Discharge_To_Destination_Without_Treatment.objects.filter(Facility__in=user_location).order_by('-id')
+                water_Discharge_Without_Treatment = Water_Discharge_To_Destination_Without_Treatment.objects.filter(Facility__in=user_location).order_by('-Financial_Year', '-id')
             else :
-                water_Discharge_Without_Treatment = Water_Discharge_To_Destination_Without_Treatment.objects.all().order_by('-id')
+                water_Discharge_Without_Treatment = Water_Discharge_To_Destination_Without_Treatment.objects.all().order_by('-Financial_Year', '-id')
                 
                 
             page_size = request.query_params.get('page_size', 5)
@@ -5954,9 +5954,9 @@ class Water_Discharge_To_Destination_With_Treatment_View(APIView):
             # if facility:
             #     filter_kwargs['Facility'] = facility
             if user_location:
-                water_Discharge_With_Treatment = Water_Discharge_To_Destination_With_Treatment.objects.filter(Facility__in=user_location).order_by('-id')
+                water_Discharge_With_Treatment = Water_Discharge_To_Destination_With_Treatment.objects.filter(Facility__in=user_location).order_by('-Financial_Year', '-id')
             else:
-                water_Discharge_With_Treatment = Water_Discharge_To_Destination_With_Treatment.objects.all().order_by('-id')
+                water_Discharge_With_Treatment = Water_Discharge_To_Destination_With_Treatment.objects.all().order_by('-Financial_Year', '-id')
                 
             
             page_size = request.query_params.get('page_size', 5)
@@ -6167,9 +6167,9 @@ class Air_Emissions_Other_Than_GHG_Emissions_View(APIView):
                 # if facility:
                 #     filter_kwargs['Facility'] = facility
             if user_location:
-                Air_emissions = Air_Emissions_Other_Than_GHG_Emissions.objects.filter(Facility__in=user_location).order_by('-id')
+                Air_emissions = Air_Emissions_Other_Than_GHG_Emissions.objects.filter(Facility__in=user_location).order_by('-Financial_Year', '-id')
             else:
-                Air_emissions = Air_Emissions_Other_Than_GHG_Emissions.objects.all().order_by('-id')
+                Air_emissions = Air_Emissions_Other_Than_GHG_Emissions.objects.all().order_by('-Financial_Year', '-id')
                 
             
             page_size = request.query_params.get('page_size', 5)

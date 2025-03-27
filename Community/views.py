@@ -235,7 +235,7 @@ class Number_Of_Affiliations_View(APIView):
         try:
             user_role = request.user.role
         # if user_role == "Company Secretary" or user_role == "ESG Lead":
-            affiliations = Number_Of_Affiliations.objects.order_by('-id')
+            affiliations = Number_Of_Affiliations.objects.order_by('-Financial_Year', '-id')
             page_size = request.query_params.get('page_size', 5)
             paginator = Paginator(affiliations, page_size)
             page_number = request.query_params.get('page', 1)
@@ -465,7 +465,7 @@ class Details_Anti_Competitive_Conduct_By_The_Entity_View(APIView):
             user_role = request.user.role
             # if user_role == "Company Secretary" or user_role == "ESG Lead":
 
-            issues = Details_Of_Any_Issues_Related_To_Anti_Competitive_Conduct_By_The_Entity.objects.order_by('-id')
+            issues = Details_Of_Any_Issues_Related_To_Anti_Competitive_Conduct_By_The_Entity.objects.order_by('-Financial_Year', '-id')
             page_size = request.query_params.get('page_size', 5)
             paginator = Paginator(issues, page_size)
             page_number = request.query_params.get('page', 1)
@@ -578,7 +578,7 @@ class Details_Of_Public_Policy_Positions_Advocated_By_The_Entity_View(APIView):
             user_role = request.user.role
             # if user_role == "Company Secretary" or user_role == "ESG Lead":
 
-            issues = Details_Of_Public_Policy_Positions_Advocated_By_The_Entity.objects.order_by('-id')
+            issues = Details_Of_Public_Policy_Positions_Advocated_By_The_Entity.objects.order_by('-Financial_Year', '-id')
             page_size = request.query_params.get('page_size', 5)
             paginator = Paginator(issues, page_size)
             page_number = request.query_params.get('page', 1)
@@ -699,7 +699,7 @@ class Awareness_Programmes_For_Value_Chain_Partners_View(APIView):
             # if user_role == "Company Secretary" or user_role == "ESG Lead":
 
             # programmes = Awareness_Programmes_For_Value_Chain_Partners.objects.filter(Facility__in=user_location).order_by('-id')
-            programmes = Awareness_Programmes_For_Value_Chain_Partners.objects.all().order_by('-id')
+            programmes = Awareness_Programmes_For_Value_Chain_Partners.objects.all().order_by('-Financial_Year')
             page_size = request.query_params.get('page_size', 5)
             paginator = Paginator(programmes, page_size)
             page_number = request.query_params.get('page', 1)
@@ -958,7 +958,7 @@ class Benefits_Derived_And_Shared_From_Intellectual_Property_View(APIView):
 
     def get(self, request):
         try:
-            benefit = Benefits_Derived_And_Shared_From_Intellectual_Property.objects.order_by('-id')
+            benefit = Benefits_Derived_And_Shared_From_Intellectual_Property.objects.order_by('-Financial_Year', '-id')
             page_size = request.query_params.get('page_size', 5)
             paginator = Paginator(benefit, page_size)
             page_number = request.query_params.get('page', 1)
@@ -1064,7 +1064,7 @@ class Details_Of_Intellectual_Property_Related_Disputes_View(APIView):
 
     def get(self, request):
         try:
-            property = Details_Of_Intellectual_Property_Related_Disputes.objects.order_by('-id')
+            property = Details_Of_Intellectual_Property_Related_Disputes.objects.order_by('-Financial_Year', '-id')
             page_size = request.query_params.get('page_size', 5)
             paginator = Paginator(property, page_size)
             page_number = request.query_params.get('page', 1)
@@ -1282,7 +1282,7 @@ class Turnover_Of_Products_As_A_Percentage_Of_Turnover_View(APIView):
 
     def get(self, request):
         try:
-            turnover = Turnover_Of_Products_As_A_Percentage_Of_Turnover.objects.order_by('-id')
+            turnover = Turnover_Of_Products_As_A_Percentage_Of_Turnover.objects.order_by('-Financial_Year', '-id')
             page_size = request.query_params.get('page_size', 5)
             paginator = Paginator(turnover, page_size)
             page_number = request.query_params.get('page', 1)
@@ -1410,7 +1410,7 @@ class Number_of_Consumer_Complaints_View(APIView):
 
     def get(self, request):
         try:
-            consumer = Number_of_Consumer_Complaints.objects.order_by('-id')
+            consumer = Number_of_Consumer_Complaints.objects.order_by('-Financial_Year', '-id')
             page_size = request.query_params.get('page_size', 15)
             paginator = Paginator(consumer, page_size)
             page_number = request.query_params.get('page', 1)
@@ -1550,7 +1550,7 @@ class Details_Of_Instances_Of_Product_Recalls_View(APIView):
 
     def get(self, request):
         try:
-            recall = Details_Of_Instances_Of_Product_Recalls.objects.order_by('-id')
+            recall = Details_Of_Instances_Of_Product_Recalls.objects.order_by('-Financial_Year', '-id')
             page_size = request.query_params.get('page_size', 5)
             paginator = Paginator(recall, page_size)
             page_number = request.query_params.get('page', 1)
@@ -2329,7 +2329,7 @@ class Ongoing_Rehabilitation_And_Resettlement_View(APIView):
 
     def get(self, request):
         try:
-            rehabilitations = Ongoing_Rehabilitation_And_Resettlement.objects.order_by('-id')
+            rehabilitations = Ongoing_Rehabilitation_And_Resettlement.objects.order_by('-Financial_Year', '-id')
             page_size = request.query_params.get('page_size', 5)
             paginator = Paginator(rehabilitations, page_size)
             page_number = request.query_params.get('page', 1)
@@ -2443,7 +2443,7 @@ class Percentage_Of_Input_Material_View(APIView):
 
     def get(self, request):
         try:
-            materials = Percentage_Of_Input_Material.objects.order_by('-id')
+            materials = Percentage_Of_Input_Material.objects.order_by('-Financial_Year', '-id')
             page_size = request.query_params.get('page_size', 5)
             paginator = Paginator(materials, page_size)
             page_number = request.query_params.get('page', 1)
@@ -2551,7 +2551,7 @@ class Details_Of_Actions_Taken_To_Mitigate_View(APIView):
 
     def get(self, request):
         try:
-            actions = Details_Of_Actions_Taken_To_Mitigate.objects.order_by('-id')
+            actions = Details_Of_Actions_Taken_To_Mitigate.objects.order_by('-Financial_Year', '-id')
             page_size = request.query_params.get('page_size', 5)
             paginator = Paginator(actions, page_size)
             page_number = request.query_params.get('page', 1)
@@ -2671,7 +2671,7 @@ class TransparencyAndDisclosureCompliancesView(APIView):
         try:
             user_role = request.user.role
             # if user_role == "Company Secretary" or user_role == "ESG Lead":
-            compliances = TransparencyAndDisclosureCompliancesModel.objects.order_by('-id')
+            compliances = TransparencyAndDisclosureCompliancesModel.objects.order_by('-Financial_Year', '-id')
             page_size = request.query_params.get('page_size', 5)
             paginator = Paginator(compliances, page_size)
             page_number = request.query_params.get('page', 1)
