@@ -192,7 +192,7 @@ role_wise_permissions = {
             "Company Details": {
                 "Company Profile": {
                     "Company Profile": ["view"],
-                    "Financials": ["edit", "delete", "view"],
+                    "Financials": ["add", "edit", "delete", "view"],
                     "Bussiness Activity": ["view"],
                     "Operations": ["view"],
                 }
@@ -258,16 +258,16 @@ role_wise_permissions = {
         "Community": {
             "Community": {
                 "Stackholders": ["add", "edit", "delete", "view"],
-                "Society": ["add", "edit", "delete", "view"],
-                "CSR": ["add", "edit", "delete", "view"],
-                "Consumer": ["add", "edit", "delete", "view"],
+                # "Society": ["add", "edit", "delete", "view"],
+                # "CSR": ["add", "edit", "delete", "view"],
+                # "Consumer": ["add", "edit", "delete", "view"],
             }
         },
 
         "BRS": {
             "BRS Policy": {
-                "Policy and Management Processes": [],
-                "Governance,Leadership and Oversight": [],
+                "Policy and Management Processes": ["add", "edit", "delete", "view"],
+                "Governance,Leadership and Oversight": ["add", "edit", "delete", "view"],
             }
         },
     },
@@ -285,28 +285,29 @@ role_wise_permissions = {
 
         "Environment": {
             "Energy": {
-                "Overall": ["add", "edit", "delete", "view"],
+                "Overall": ["view"],
                 # "Emissions": ["add", "edit", "delete", "view"],
                 "Electricity": ["add", "edit", "delete", "view"],
                 "Fuel Combustion": ["add", "edit", "delete", "view"],
                 "Logistics": ["add", "edit", "delete", "view"],
                 "Energy Intensity": ["view"],
+                "Others" : ["add", "edit", "delete", "view"]
             },
             "Water and Air": {
-                "Overall": ["add", "edit", "delete", "view"],
+                "Overall": ["view"],
                 "Withdrawal": ["add", "edit", "delete", "view"],
                 "Consumption": ["add", "edit", "delete", "view"],
                 "Discharge": ["add", "edit", "delete", "view"],
                 "Air Emission": ["add", "edit", "delete", "view"],
             },
             "GHG_emission": {
-                "Overall": ["add", "edit", "delete", "view"],
-                "Scope1": ["add", "edit", "delete", "view"],
-                "Scope2": ["add", "edit", "delete", "view"],
-                "Scope3": ["add", "edit", "delete", "view"],
+                "Overall": ["view"],
+                "Scope1": ["view"],
+                "Scope2": ["view"],
+                "Scope3": ["view"],
             },
             "Waste": {
-                "Overall": ["add", "edit", "delete", "view"],
+                "Overall": ["view"],
                 "Waste Generated": ["add", "edit", "delete", "view"],
                 "Recovered": ["add", "edit", "delete", "view"],
                 "Disposed": ["add", "edit", "delete", "view"],
