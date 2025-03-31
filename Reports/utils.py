@@ -1303,3 +1303,7 @@ def calculate_section_A_22_Worker(financial_year):
         result_dict["total"].append(f"{total_count}%" if total_count >= 0 else "-")
     # Wrap result_dict in a list before returning
     return [result_dict]
+
+def format_value(value,records):
+    """Return the value if records exist, otherwise return '-'."""
+    return value if records.exists() else "-"

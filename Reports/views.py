@@ -9232,15 +9232,20 @@ class Principle5View(APIView):
                                 "filed_during_the_previous_year": safe_decimal_to_float(previous_year_Other_Human_Rights_Related_Issues.Filed_During_The_Year) if previous_year_Other_Human_Rights_Related_Issues else "0",
                                 "pending_resolution_at_the_eoy_previous": safe_decimal_to_float(previous_year_Other_Human_Rights_Related_Issues.Pending_Resolution_At_The_EOY) if previous_year_Other_Human_Rights_Related_Issues else "0",
                                 "remark_previous": previous_year_Other_Human_Rights_Related_Issues.Remark if previous_year_Other_Human_Rights_Related_Issues else "NA",
-                }],
-                        "Principle_5_EI_7_total": [{"current_female_sum": current_female_sum if current_female_sum else "-" , 
-                                                   "previous_female_sum": previous_female_sum if previous_female_sum else "-"}],
+                    }],
+                       "Principle_5_EI_7_total": [{
+                            "current_female_sum": format_value(current_female_sum, current_year_records),
+                            "previous_female_sum": format_value(previous_female_sum, previous_year_records),
+                        }],
+                       "Principle_5_EI_7_complaint": [{
+                                "current_percent_female_sum": round(current_percent_female_sum, 2) if current_year_records.exists() else "-",
+                                "previous_percent_female_sum": round(previous_percent_female_sum, 2) if previous_year_records.exists() else "-",
+                            }],
 
-                        "Principle_5_EI_7_complaint": [{"current_percent_female_sum": round(current_percent_female_sum, 2) if current_percent_female_sum else"-", 
-                                                       "previous_percent_female_sum": round(previous_percent_female_sum, 2) if previous_percent_female_sum else "-"}],
-
-                        "Principle_5_EI_7_upheld": [{"current": current_upheld_string if current_upheld_string else "-", 
-                                                     "previous": previous_upheld_string if previous_upheld_string else "-"}],
+                        "Principle_5_EI_7_upheld": [{
+                                "current": format_value(current_upheld_string, current_year_records),
+                                "previous": format_value(previous_upheld_string, previous_year_records),
+                            }],
 
                         "Principle_5_EI_8": [{"Principle_5_EI_8": description_obj8.Descriptions_Human_Rights if description_obj8 else "-"}],
                 
