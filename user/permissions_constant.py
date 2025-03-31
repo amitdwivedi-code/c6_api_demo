@@ -87,8 +87,12 @@ esg_lead_permissions = {
         "BRS Policy": {
             "Policy and Management Processes": ["add", "edit", "delete", "view"],
             "Governance,Leadership and Oversight": ["add", "edit", "delete", "view"],
-        }
+        },
+        "BRS Report":  {
+            "BRS Report": ["view"],
+        }        
     },
+
 }
 
 user_permissions = {
@@ -180,7 +184,10 @@ user_permissions = {
         "BRS Policy": {
             "Policy and Management Processes": [],
             "Governance,Leadership and Oversight": [],
-        }
+        },
+        "BRS Report":  {
+            "BRS Report": [],
+        }   
     },
 }
 
@@ -268,7 +275,10 @@ role_wise_permissions = {
             "BRS Policy": {
                 "Policy and Management Processes": ["add", "edit", "delete", "view"],
                 "Governance,Leadership and Oversight": ["add", "edit", "delete", "view"],
-            }
+            },
+            "BRS Report":  {
+                "BRS Report": ["view"],
+            }   
         },
     },
 
@@ -291,7 +301,8 @@ role_wise_permissions = {
                 "Fuel Combustion": ["add", "edit", "delete", "view"],
                 "Logistics": ["add", "edit", "delete", "view"],
                 "Energy Intensity": ["view"],
-                "Others" : ["add", "edit", "delete", "view"]
+                "Travel": ["add", "edit", "delete", "view"],
+                "Others" : ["add", "edit", "delete", "view"],
             },
             "Water and Air": {
                 "Overall": ["view"],
