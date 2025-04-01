@@ -73,11 +73,11 @@ class BrsLog_View(APIView):
         try:
             user_role = request.user.role
             search_query = request.query_params.get('name', '').strip()
-            if user_role == "ESG Lead":
-                brs_log = BRS_Report_Log.objects.all().order_by('-Last_Update')
-            else:
-                user_name = request.user.firstname+" "+request.user.lastname
-                brs_log = BRS_Report_Log.objects.filter(User_Name=user_name).order_by('-Last_Update')          
+            # if user_role == "ESG Lead":
+            brs_log = BRS_Report_Log.objects.all().order_by('-Last_Update')
+            # else:
+            #     user_name = request.user.firstname+" "+request.user.lastname
+            #     brs_log = BRS_Report_Log.objects.filter(User_Name=user_name).order_by('-Last_Update')          
 
             # Apply search filter if `search_query` is provided
             if search_query:

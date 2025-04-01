@@ -313,9 +313,9 @@ role_wise_permissions = {
             },
             "GHG_emission": {
                 "Overall": ["view"],
-                "Scope1": ["view"],
-                "Scope2": ["view"],
-                "Scope3": ["view"],
+                # "Scope1": ["view"],
+                # "Scope2": ["view"],
+                # "Scope3": ["view"],
             },
             "Waste": {
                 "Overall": ["view"],
