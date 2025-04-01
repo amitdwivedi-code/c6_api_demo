@@ -89,7 +89,7 @@ esg_lead_permissions = {
             "Governance,Leadership and Oversight": ["add", "edit", "delete", "view"],
         },
         "BRS Report":  {
-            "BRS Report": ["view"],
+            "BRS Report": ["add", "edit", "delete", "view"],
         }        
     },
 
