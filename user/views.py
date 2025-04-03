@@ -172,22 +172,33 @@ class UserSignup(APIView):
                             access_count = EmployeesAccessControl.objects.filter(employee_code=user.employee_code, section=section, page=page,sub_page=sub_page).last()
                             access_count.permissions = sub_page_permissions
                             access_count.save()
+
             # Determine the password reset link based on the environment
             # password_reset_link = settings.PASSWORD_RESET_LINK
-            
-            
+           
+            email=request.data.get("email")
+            user = get_object_or_404(User, email=email)
+            # Generate a unique token
+            token_generator = PasswordResetTokenGenerator()
+            token = token_generator.make_token(user)
+            # print("token:",token,"----------------------------")
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            # print("uid:",uid,"----------------------------")
             host = request.get_host().split(":")[0]
-            
+        
+            # Determine frontend URL based on host
             if host in ["localhost", "127.0.0.1"]:
-                frontend_url = "http://localhost:3000"
+                frontend_url = "localhost:3000"
             elif host == "kpcl-c6.indi4.io":
-                frontend_url = "http://kpcl-c6.indi4.io"
+                frontend_url = "kpcl-c6.indi4.io"
             elif host == "demo-c6.indi4.io":
-                frontend_url = "http://demo-c6.indi4.io"
+                frontend_url = "demo-c6.indi4.io"
             else:
-                frontend_url = "https://arantree-c6.indi4.io/"
+                frontend_url = "arantree-c6.indi4.io/"
 
-            password_reset_link = f"{frontend_url}/forgot-password" 
+            password_reset_link = f"{request.scheme}://{frontend_url}/reset-password/{uid}/{token}/"
+            print(password_reset_link,"-----------------------")
+ 
                 
             # Prepare email content
             email_subject = "Welcome to C6"
