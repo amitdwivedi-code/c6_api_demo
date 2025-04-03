@@ -366,7 +366,10 @@ class OperationsInEcologicallySensitiveAreasSerializer(serializers.ModelSerializ
 
 
 class EnvironmentalImpactAssessmentsOfProjectsUndertakenSerializer(serializers.ModelSerializer):
-    Date = serializers.DateField(format="%d-%m-%Y")
+    Date = serializers.DateField(
+        format="%d-%m-%Y",  
+        input_formats=["%Y-%m-%d", "%d-%m-%Y"]  # Allow both formats
+    )    
     class Meta:
         model = Environmental_Impact_Assessments_Of_Projects_Undertaken
         fields = "__all__"
