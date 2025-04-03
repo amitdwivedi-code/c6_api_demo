@@ -126,7 +126,7 @@ class OngoingRehabilitationAndResettlementSerializer(serializers.ModelSerializer
 
         
 class DetailsOfSocialImpactAssessmentsSerializer(serializers.ModelSerializer):
-    Date_Of_Notification = serializers.DateField(format="%d-%m-%Y", input_formats=["%Y-%m-%d", "%d-%m-%Y"])
+  
     class Meta:
         model = Details_Of_Social_Impact_Assessments
         fields = '__all__' 
