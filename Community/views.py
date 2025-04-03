@@ -16,7 +16,7 @@ from .choices import *
 from django.db.models import Max, Sum
 from rest_framework.exceptions import APIException,ValidationError
 from django.db import transaction
-
+from datetime import datetime
 import logging
 logger = logging.getLogger(__name__)
 # Create your views here.
@@ -2271,8 +2271,6 @@ class Details_Of_Social_Impact_Assessments_View(APIView):
                     return Response({'error': 'Entry for this project name, SIA No already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-
             if id is not None:
                 try:
                     assessment = Details_Of_Social_Impact_Assessments.objects.get(id=id)
@@ -2280,6 +2278,15 @@ class Details_Of_Social_Impact_Assessments_View(APIView):
                         Details_Of_Social_Impact_Assessments.objects.filter(id=id).delete()
 
                         request_data = request.data.copy()  
+                         # Convert date fields to "YYYY-MM-DD" before saving
+                        if "Date_Of_Notification" in request_data:
+                            try:
+                                request_data["Date_Of_Notification"] = datetime.strptime(
+                                    request_data["Date_Of_Notification"], "%d-%m-%Y"
+                                ).strftime("%Y-%m-%d")
+                            except ValueError:
+                                return Response({'error': 'Invalid date format. Use DD-MM-YYYY'}, status=status.HTTP_400_BAD_REQUEST)
+                            
                         if "id" in request_data:
                             request_data.pop("id")
 

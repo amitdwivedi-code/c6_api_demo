@@ -1901,10 +1901,14 @@ class Holdings_View(APIView):
             if id is not None:
                 try:
                     holdings_instance = Holdings.objects.get(id=id)
+                    type_of_holding = request.data.get("Type_of_Holding")
 
                     # Convert Type_of_Holding from list to string if it's provided as a list
                     if isinstance(request.data.get("Type_of_Holding"), list):
-                        request.data["Type_of_Holding"] = ", ".join(request.data["Type_of_Holding"])
+                        request.data["Type_of_Holding"] = ", ".join(type_of_holding)
+                    
+                    elif type_of_holding is None:
+                        request.data["Type_of_Holding"] = ""
 
                     serializer = HoldingsSerializer(holdings_instance, data=request.data)
                     if serializer.is_valid():
