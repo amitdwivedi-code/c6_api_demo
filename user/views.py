@@ -177,11 +177,17 @@ class UserSignup(APIView):
             
             
             host = request.get_host().split(":")[0]
-            if host == "localhost" or host == "127.0.0.1":
-                password_reset_link = "http://localhost:3000/forgot-password"
+            
+            if host in ["localhost", "127.0.0.1"]:
+                frontend_url = "http://localhost:3000"
+            elif host == "kpcl-c6.indi4.io":
+                frontend_url = "http://kpcl-c6.indi4.io"
+            elif host == "demo-c6.indi4.io":
+                frontend_url = "http://demo-c6.indi4.io"
             else:
-                password_reset_link = "http://kpcl-c6.indi4.io/forgot-password"
-                
+                frontend_url = "https://arantree-c6.indi4.io/"
+
+            password_reset_link = f"{frontend_url}/forgot-password" 
                 
             # Prepare email content
             email_subject = "Welcome to C6"
@@ -1025,12 +1031,17 @@ class SendPasswordResetLink(APIView):
             # print("uid:",uid,"----------------------------")
             host = request.get_host().split(":")[0]
         
-            if host == "localhost" or host == "127.0.0.1":
+            # Determine frontend URL based on host
+            if host in ["localhost", "127.0.0.1"]:
                 frontend_url = "localhost:3000"
-                reset_link = f"{request.scheme}://{frontend_url}/reset-password/{uid}/{token}/"
-            else:
+            elif host == "kpcl-c6.indi4.io":
                 frontend_url = "kpcl-c6.indi4.io"
-                reset_link = f"{request.scheme}://{frontend_url}/reset-password/{uid}/{token}/"
+            elif host == "demo-c6.indi4.io":
+                frontend_url = "demo-c6.indi4.io"
+            else:
+                frontend_url = "arantree-c6.indi4.io/"
+
+            reset_link = f"{request.scheme}://{frontend_url}/reset-password/{uid}/{token}/"
 
             # Send email with plain text
             subject = "Password Reset Request"
