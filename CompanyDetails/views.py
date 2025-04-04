@@ -194,11 +194,13 @@ class CompanyProfile(APIView):
         
     def put(self, request, Company_Name=None, format=None):
         if Company_Name:
+            Company_Name = Company_Name.strip()
+           
             try:
                 profile = Company_Profile.objects.get(Company_Name=Company_Name)
             except Company_Profile.DoesNotExist:
                 return Response({"error": "Company not found."}, status=status.HTTP_404_NOT_FOUND)
-
+            
             serializer = CompanyLogoSerializer(profile, data=request.data)
             if serializer.is_valid():
                 if 'Company_Logo' in request.data:
