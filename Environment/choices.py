@@ -70,7 +70,7 @@ WATER_DISCHARGE_TO_DESTINATION_WITHOUT_TREATMENT = ["Ground Water", "Others", "S
 
 WATER_DISCHARGE_TO_DESTINATION_WITH_TREATMENT = ["Ground Water", "Others", "Sea Water", "Surface Water", "Third Party Water"]
 
-AIR_EMISSIONS_UNIT = ["mg/NM³","Kg/day","mg/NM³","mg/NM³","mg/NM³","mg/NM³","NA"]
+AIR_EMISSIONS_UNIT =  ["mg/NM³", "mg/NM³", "NA", "mg/NM³", "mg/NM³", "Kg/day", "mg/NM³"]
 
 AIR_EMISSIONS_PARAMETER = ["Hazardous Air Pollutant", "Nox", "Others", "Particular Matter","Persistent Organic Pollutants", "Sox", "Volatile Organic Compounds"]
 
