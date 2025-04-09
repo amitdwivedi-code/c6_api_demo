@@ -1,52 +1,48 @@
+version: '3.9'
+
 services:
-  kpcl-c6-api:
-    image: ghcr.io/indi4/c6_api:latest
-    container_name: kpcl-c6-ap
-    depends_on:
-      - mongodb
+  c6-api-demo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: demo-c6-api
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
     env_file:
       - .env
     restart: always
-  
-  mongodb:
-    image: mongo
-    container_name: mongodb
-    ports:
-      - "27017:27017"
-    env_file:
-      - .env
     volumes:
-      - mongo-data:/data/db 
+      - .:/app         # Optional: Mount project directory into container
+    depends_on:
+      - localstack     # Optional: if your app needs S3 at startup
+    networks:
+      - npm_default
+
   localstack:
-    container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
+    container_name: localstack-main
     image: localstack/localstack
     ports:
-      - "127.0.0.1:4566:4566"            # LocalStack Gateway
-      - "127.0.0.1:4510-4559:4510-4559"  # external services port range
-    env_file:
-      - .env
-    depends_on:
-      - kpcl-c6-api
+      - "4566:4566"              # LocalStack Gateway
+      - "4510-4559:4510-4559"    # LocalStack external service ports
+    environment:
+      - DEBUG=1
+      - AWS_ACCESS_KEY_ID=democ6mediastorageid
+      - AWS_SECRET_ACCESS_KEY=democ6mediastoragekey
+      - AWS_DEFAULT_REGION=us-east-1
+      - SERVICES=s3
+      - PERSISTENCE=1                          #Enables persistence
+      - DATA_DIR=/var/lib/localstack/data      #Custom persistence dir
     volumes:
-      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - ./localstack-data:/var/lib/localstack/data
+      - ./localstack/init-scripts:/etc/localstack/init/ready.d
       - "/var/run/docker.sock:/var/run/docker.sock"
-
-  kpcl-c6-ui:
-    image: ghcr.io/indi4/sustainability_ui:latest
-    container_name: kpcl-c6-ui
-    # ports:
-    #   - 8082:80
-    env_file:
-      - .env
-    depends_on:
-      - kpcl-c6-api
-    restart: always
-
-networks:
-  default:
-    external: true
-    name: npm_default
+    networks:
+      - npm_default
 
 volumes:
-  mongo-data:
-    driver: local
+  localstack_data:
+
+networks:
+  npm_default:
+    external: true
