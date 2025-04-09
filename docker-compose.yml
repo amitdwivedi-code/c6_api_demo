@@ -12,36 +12,36 @@ services:
     env_file:
       - .env
     restart: always
-    volumes:
-      - .:/app         # Optional: Mount project directory into container
-    depends_on:
-      - localstack     # Optional: if your app needs S3 at startup
-    networks:
-      - npm_default
+    # volumes:
+    #   - .:/app         # Optional: Mount project directory into container
+    # depends_on:
+    #   - localstack     # Optional: if your app needs S3 at startup
+    # networks:
+    #   - npm_default
 
-  localstack:
-    container_name: localstack-main
-    image: localstack/localstack
-    ports:
-      - "4566:4566"              # LocalStack Gateway
-      - "4510-4559:4510-4559"    # LocalStack external service ports
-    environment:
-      - DEBUG=1
-      - AWS_ACCESS_KEY_ID=democ6mediastorageid
-      - AWS_SECRET_ACCESS_KEY=democ6mediastoragekey
-      - AWS_DEFAULT_REGION=us-east-1
-      - SERVICES=s3
-      - PERSISTENCE=1                          #Enables persistence
-      - DATA_DIR=/var/lib/localstack/data      #Custom persistence dir
-    volumes:
-      - ./localstack-data:/var/lib/localstack/data
-      - ./localstack/init-scripts:/etc/localstack/init/ready.d
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    networks:
-      - npm_default
+  # localstack:
+  #   container_name: localstack-main
+  #   image: localstack/localstack
+  #   ports:
+  #     - "4566:4566"              # LocalStack Gateway
+  #     - "4510-4559:4510-4559"    # LocalStack external service ports
+  #   environment:
+  #     - DEBUG=1
+  #     - AWS_ACCESS_KEY_ID=democ6mediastorageid
+  #     - AWS_SECRET_ACCESS_KEY=democ6mediastoragekey
+  #     - AWS_DEFAULT_REGION=us-east-1
+  #     - SERVICES=s3
+  #     - PERSISTENCE=1                          #Enables persistence
+  #     - DATA_DIR=/var/lib/localstack/data      #Custom persistence dir
+  #   volumes:
+  #     - ./localstack-data:/var/lib/localstack/data
+  #     - ./localstack/init-scripts:/etc/localstack/init-scripts/ready.d
+  #     - "/var/run/docker.sock:/var/run/docker.sock"
+  #   networks:
+  #     - npm_default
 
-volumes:
-  localstack_data:
+# volumes:
+#   localstack_data:
 
 networks:
   npm_default:
