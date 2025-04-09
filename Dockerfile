@@ -9,17 +9,16 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # Turns off buffering for easier container logging
 ENV PYTHONUNBUFFERED=1
 
-# # Install pipenv
-# COPY requirement.txt .
-# COPY Pipfile.lock .
-# RUN apk update && apk add postgresql-dev gcc python3-dev musl-dev
-# RUN  python -m pip install pipenv && pipenv install --system --deploy
+# Install pipenv
+COPY Pipfile .
+COPY Pipfile.lock .
+RUN  python -m pip install pipenv && pipenv install --system --deploy
 
-# Copy the requirements file to the working directory
-COPY requirements.txt .
+# # Copy the requirements file to the working directory
+# COPY requirements.txt .
 
-# Install Python dependencies from requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+# # Install Python dependencies from requirements.txt
+# RUN pip install --no-cache-dir -r requirements.txt
 
 WORKDIR /app
 COPY . /app
