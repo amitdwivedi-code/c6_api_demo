@@ -28,7 +28,7 @@ env = Env()
 env.read_env(BASE_DIR / '.env')
 
 # Media config
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 # AWS_ACCESS_KEY_ID = env.str('AWS_ACCESS_KEY_ID')
 # AWS_SECRET_ACCESS_KEY = env.str('AWS_SECRET_ACCESS_KEY')
@@ -120,6 +120,7 @@ DATABASES = {
         'ENFORCE_SCHEMA': False,  # Optional, helps avoid issues with schema checks
         'CLIENT': {
             'host': env.str('MONGO_DATABASE_URL'),
+            # 'SSL': False,
             'tls': True,  # use 'tls' instead of 'ssl' for compatibility with some versions
             'authMechanism': 'SCRAM-SHA-1',
             'appName': 'Cluster0',
