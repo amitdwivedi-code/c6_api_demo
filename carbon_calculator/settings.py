@@ -77,6 +77,7 @@ INSTALLED_APPS = [
     'Reports',
     'drf_yasg',
     'recommendation',
+    'DashBoard',
     # 'storages',
 ]
 
@@ -117,13 +118,13 @@ DATABASES = {
     'default': { 
         'ENGINE': 'djongo',
         'NAME': 'c6_api_demo',
-        'ENFORCE_SCHEMA': False,  # Optional, helps avoid issues with schema checks
+        # 'ENFORCE_SCHEMA': False,  # Optional, helps avoid issues with schema checks
         'CLIENT': {
             'host': env.str('MONGO_DATABASE_URL'),
-            # 'SSL': False,
-            'tls': True,  # use 'tls' instead of 'ssl' for compatibility with some versions
-            'authMechanism': 'SCRAM-SHA-1',
-            'appName': 'Cluster0',
+            'SSL': False,
+            # 'tls': True,  # use 'tls' instead of 'ssl' for compatibility with some versions
+            # 'authMechanism': 'SCRAM-SHA-1',
+            # 'appName': 'Cluster0',
         } 
     } 
 }
