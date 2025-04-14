@@ -42,6 +42,8 @@ urlpatterns = [
     path('activity_log/', include('Activity_Log.urls')),
     path('brs_policy/', include('BRS.urls')),
     path('reports/', include('Reports.urls')),
+    path('dashboard/', include('DashBoard.urls')),
+
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'), 
     path('docs/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
    
@@ -69,6 +71,7 @@ urlpatterns = [
     # path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
      
     path('api/', include('recommendation.urls')),
+    
 
 
 ]

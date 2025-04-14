@@ -77,6 +77,7 @@ INSTALLED_APPS = [
     'Reports',
     'drf_yasg',
     'recommendation',
+    'DashBoard',
     # 'storages',
 ]
 
