@@ -24,3 +24,10 @@ def get_change(prev, curr):
     change = round(curr - prev, 2)
     percent = round((change / prev) * 100, 2) if prev != 0 else 0.0
     return {"change": change, "percent": percent}
+
+def safe_decimal_to_float(val):
+        if isinstance(val, Decimal128):
+            return float(val.to_decimal())
+        elif val is not None:
+            return float(val)
+        return 0.0
