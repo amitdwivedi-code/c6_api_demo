@@ -890,134 +890,7 @@ class Combined_Electricity_Consumption_Dashboard(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=500)
         
-
-class Combined_Scope2_Emission_Dashboard(APIView):
-    permission_classes = [IsAuthenticated]
-    
-    def get(self, request):
-        try:
-            financial_year = request.query_params.get('financial_year')
-            facility = request.query_params.get('facility')
-
-            queryset = Scope1_Emissions_by_Facilities.objects.all()
-
-            if financial_year:
-                queryset = queryset.filter(Financial_Year=financial_year)
-            if facility:
-                queryset = queryset.filter(Facility=facility)
-
-            months = [
-                'Emission_Apr', 'Emission_May', 'Emission_Jun', 'Emission_Jul',
-                'Emission_Aug', 'Emission_Sep', 'Emission_Oct', 'Emission_Nov',
-                'Emission_Dec', 'Emission_Jan', 'Emission_Feb', 'Emission_Mar'
-            ]
-
-            # Case 1: No filters — group by Facility
-            if not financial_year and not facility:
-                grouped = defaultdict(lambda: {
-                    'Financial_Year': 'All',
-                    'data': {month: Decimal('0.00') for month in months},
-                    'Total_Emission': Decimal('0.00')
-                })
-
-                for record in queryset:
-                    fac = record.Facility or "Unknown"
-                    for month in months:
-                        val = getattr(record, month)
-                        if val:
-                            grouped[fac]['data'][month] += val.to_decimal()
-
-                    total = record.Total_Emission
-                    if total:
-                        grouped[fac]['Total_Emission'] += total.to_decimal()
-
-                response_data = []
-                for fac, data in grouped.items():
-                    entry = {
-                        'Facility': fac,
-                        'Financial_Year': 'All',
-                        'Total_Emission': float(data['Total_Emission']),
-                        **{month: float(v) for month, v in data['data'].items()}
-                    }
-                    response_data.append(entry)
-
-            # Case 2: Only year — group by facility for that year
-            elif financial_year and not facility:
-                grouped = defaultdict(lambda: {
-                    'Financial_Year': financial_year,
-                    'data': {month: Decimal('0.00') for month in months},
-                    'Total_Emission': Decimal('0.00')
-                })
-
-                for record in queryset:
-                    fac = record.Facility or "Unknown"
-                    for month in months:
-                        val = getattr(record, month)
-                        if val:
-                            grouped[fac]['data'][month] += val.to_decimal()
-
-                    total = record.Total_Emission
-                    if total:
-                        grouped[fac]['Total_Emission'] += total.to_decimal()
-
-                response_data = []
-                for fac, data in grouped.items():
-                    entry = {
-                        'Facility': fac,
-                        'Financial_Year': financial_year,
-                        'Total_Emission': float(data['Total_Emission']),
-                        **{month: float(v) for month, v in data['data'].items()}
-                    }
-                    response_data.append(entry)
-
-            # Case 3: only facility - group by all year
-            elif facility and not financial_year:
-                result = {
-                    month: Decimal('0.00') for month in months
-                }
-                total_sum = Decimal('0.00')
-
-                for record in queryset:
-                    for month in months:
-                        val = getattr(record, month)
-                        if val:
-                            result[month] += val.to_decimal()
-
-                    total = record.Total_Emission
-                    if total:
-                        total_sum += total.to_decimal()
-                        
-                response_data = {
-                        'Facility': facility,
-                        'Financial_Year': 'All',  # <-- fixed here
-                        'Total_Emission': float(total_sum),
-                        **{month: float(v) for month, v in result.items()}
-                    }
-            # Case 4: Both filters — exact match
-            else:
-                result = {month: Decimal('0.00') for month in months}
-                total_sum = Decimal('0.00')
-                for record in queryset:
-                    for month in months:
-                        val = getattr(record, month)
-                        if val:
-                            result[month] += val.to_decimal()
-                    total = record.Total_Emission
-                    if total:
-                        total_sum += total.to_decimal()
-
-                response_data = {
-                    'Facility': facility,
-                    'Financial_Year': financial_year,
-                    'Total_Emission': float(total_sum),
-                    **{month: float(v) for month, v in result.items()}
-                }
-
-            return Response(response_data)
-
-        except Exception as e:
-            return Response({"error": str(e)}, status=500)
-        
+ 
 class Waste_Generated_Dashboard(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
@@ -1180,4 +1053,341 @@ class Waste_Disposed_Dashboard(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=500)
-        
+
+
+class Combined_Scope1_Emission_Dashboard(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            financial_year = request.query_params.get('financial_year')
+            facility = request.query_params.get('facility')
+
+            months = [
+                'Emission_Apr', 'Emission_May', 'Emission_Jun', 'Emission_Jul',
+                'Emission_Aug', 'Emission_Sep', 'Emission_Oct', 'Emission_Nov',
+                'Emission_Dec', 'Emission_Jan', 'Emission_Feb', 'Emission_Mar'
+            ]
+
+            # ---------- FACILITY-WISE DATA ----------
+            queryset = Scope1_Emissions_by_Facilities.objects.all()
+            if financial_year:
+                queryset = queryset.filter(Financial_Year=financial_year)
+            if facility:
+                queryset = queryset.filter(Facility=facility)
+
+            facility_data = []
+
+            if not financial_year and not facility:
+                grouped = defaultdict(lambda: {
+                    'Financial_Year': 'All',
+                    'data': {month: Decimal('0.00') for month in months},
+                    'Total_Emission': Decimal('0.00')
+                })
+                for record in queryset:
+                    fac = record.Facility or "Unknown"
+                    for month in months:
+                        val = getattr(record, month)
+                        if val:
+                            grouped[fac]['data'][month] += val.to_decimal()
+                    if record.Total_Emission:
+                        grouped[fac]['Total_Emission'] += record.Total_Emission.to_decimal()
+
+                for fac, data in grouped.items():
+                    entry = {
+                        'Facility': fac,
+                        'Financial_Year': data['Financial_Year'],
+                        'Total_Emission': float(data['Total_Emission']),
+                        **{month: float(v) for month, v in data['data'].items()}
+                    }
+                    facility_data.append(entry)
+
+            elif financial_year and not facility:
+                grouped = defaultdict(lambda: {
+                    'Financial_Year': financial_year,
+                    'data': {month: Decimal('0.00') for month in months},
+                    'Total_Emission': Decimal('0.00')
+                })
+                for record in queryset:
+                    fac = record.Facility or "Unknown"
+                    for month in months:
+                        val = getattr(record, month)
+                        if val:
+                            grouped[fac]['data'][month] += val.to_decimal()
+                    if record.Total_Emission:
+                        grouped[fac]['Total_Emission'] += record.Total_Emission.to_decimal()
+
+                for fac, data in grouped.items():
+                    entry = {
+                        'Facility': fac,
+                        'Financial_Year': financial_year,
+                        'Total_Emission': float(data['Total_Emission']),
+                        **{month: float(v) for month, v in data['data'].items()}
+                    }
+                    facility_data.append(entry)
+
+            elif facility and not financial_year:
+                result = {month: Decimal('0.00') for month in months}
+                total_sum = Decimal('0.00')
+                for record in queryset:
+                    for month in months:
+                        val = getattr(record, month)
+                        if val:
+                            result[month] += val.to_decimal()
+                    if record.Total_Emission:
+                        total_sum += record.Total_Emission.to_decimal()
+
+                facility_data = [{
+                    'Facility': facility,
+                    'Financial_Year': 'All',
+                    'Total_Emission': float(total_sum),
+                    **{month: float(v) for month, v in result.items()}
+                }]
+
+            else:
+                result = {month: Decimal('0.00') for month in months}
+                total_sum = Decimal('0.00')
+                for record in queryset:
+                    for month in months:
+                        val = getattr(record, month)
+                        if val:
+                            result[month] += val.to_decimal()
+                    if record.Total_Emission:
+                        total_sum += record.Total_Emission.to_decimal()
+
+                facility_data = [{
+                    'Facility': facility,
+                    'Financial_Year': financial_year,
+                    'Total_Emission': float(total_sum),
+                    **{month: float(v) for month, v in result.items()}
+                }]
+
+            # ---------- FUEL TYPE PERCENTAGE DATA ----------
+            fuel_queryset = Scope1_Emissions_by_Fuel.objects.all()
+            if financial_year:
+                fuel_queryset = fuel_queryset.filter(Financial_Year=financial_year)
+
+            fuel_grouped = defaultdict(Decimal)
+            for record in fuel_queryset:
+                fuel = record.Fuel_Type or "Unknown"
+                total = record.Total_Emission.to_decimal() if record.Total_Emission else Decimal('0.00')
+                fuel_grouped[fuel] += total
+
+            total_fuel_emission = sum(fuel_grouped.values()) or Decimal('1.00')
+            fuel_data = []
+            for fuel_type, total in fuel_grouped.items():
+                percentage = (total / total_fuel_emission * 100).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                fuel_data.append({
+                    "Fuel_Type": fuel_type,
+                    "Total_Emission": float(total),
+                    "Percentage": float(percentage),
+                    "Financial_Year": financial_year or "All"
+                })
+
+           # ---------- YEAR WISE TOTAL EMISSION ----------
+            year_queryset = Scope1_Emissions_by_Facilities.objects.all()
+            if facility and not financial_year:
+                year_queryset = year_queryset.filter(Facility=facility)
+            elif financial_year and not facility:
+                year_queryset = year_queryset.filter(Financial_Year=financial_year)
+            elif financial_year and facility:
+                year_queryset = year_queryset.filter(Financial_Year=financial_year, Facility=facility)
+
+            yearly_grouped = defaultdict(Decimal)
+            for record in year_queryset:
+                fy = record.Financial_Year or "Unknown"
+                total = record.Total_Emission.to_decimal() if record.Total_Emission else Decimal('0.00')
+                yearly_grouped[fy] += total
+
+            def extract_year(fy_str):
+                try:
+                    return int(fy_str[2:6])
+                except:
+                    return 0
+
+            year_wise_data = []
+            for fy, total in sorted(yearly_grouped.items(), key=lambda x: extract_year(x[0]), reverse=True):
+                year_wise_data.append({
+                    "Financial_Year": fy,
+                    "Total_Emission": float(total)
+                })
+
+            return Response({
+                "facility_emission_data": facility_data,
+                "fuel_type_percentage_data": fuel_data,
+                "year_wise_emission_data": year_wise_data
+            })
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+
+
+class Combined_Scope2_Emission_Dashboard(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            financial_year = request.query_params.get('financial_year')
+            facility = request.query_params.get('facility')
+
+            months = [
+                'Emission_Apr', 'Emission_May', 'Emission_Jun', 'Emission_Jul',
+                'Emission_Aug', 'Emission_Sep', 'Emission_Oct', 'Emission_Nov',
+                'Emission_Dec', 'Emission_Jan', 'Emission_Feb', 'Emission_Mar'
+            ]
+
+            # ---------- FACILITY-WISE DATA ----------
+            queryset = Scope2_Emissions_by_Facilities.objects.all()
+            if financial_year:
+                queryset = queryset.filter(Financial_Year=financial_year)
+            if facility:
+                queryset = queryset.filter(Facility=facility)
+
+            facility_data = []
+            yearly_grouped = defaultdict(Decimal)
+
+            if not financial_year and not facility:
+                grouped = defaultdict(lambda: {
+                    'Financial_Year': 'All',
+                    'data': {month: Decimal('0.00') for month in months},
+                    'Total_Emission': Decimal('0.00')
+                })
+                for record in queryset:
+                    fac = record.Facility or "Unknown"
+                    for month in months:
+                        val = getattr(record, month)
+                        if val:
+                            grouped[fac]['data'][month] += val.to_decimal()
+                    if record.Total_Emission:
+                        grouped[fac]['Total_Emission'] += record.Total_Emission.to_decimal()
+
+                for fac, data in grouped.items():
+                    entry = {
+                        'Facility': fac,
+                        'Financial_Year': data['Financial_Year'],
+                        'Total_Emission': float(data['Total_Emission']),
+                        **{month: float(v) for month, v in data['data'].items()}
+                    }
+                    facility_data.append(entry)
+
+            elif financial_year and not facility:
+                grouped = defaultdict(lambda: {
+                    'Financial_Year': financial_year,
+                    'data': {month: Decimal('0.00') for month in months},
+                    'Total_Emission': Decimal('0.00')
+                })
+                for record in queryset:
+                    fac = record.Facility or "Unknown"
+                    for month in months:
+                        val = getattr(record, month)
+                        if val:
+                            grouped[fac]['data'][month] += val.to_decimal()
+                    if record.Total_Emission:
+                        grouped[fac]['Total_Emission'] += record.Total_Emission.to_decimal()
+
+                for fac, data in grouped.items():
+                    entry = {
+                        'Facility': fac,
+                        'Financial_Year': financial_year,
+                        'Total_Emission': float(data['Total_Emission']),
+                        **{month: float(v) for month, v in data['data'].items()}
+                    }
+                    facility_data.append(entry)
+
+            elif facility and not financial_year:
+                result = {month: Decimal('0.00') for month in months}
+                total_sum = Decimal('0.00')
+                for record in queryset:
+                    for month in months:
+                        val = getattr(record, month)
+                        if val:
+                            result[month] += val.to_decimal()
+                    if record.Total_Emission:
+                        total_sum += record.Total_Emission.to_decimal()
+
+                facility_data = [{
+                    'Facility': facility,
+                    'Financial_Year': 'All',
+                    'Total_Emission': float(total_sum),
+                    **{month: float(v) for month, v in result.items()}
+                }]
+
+            else:
+                result = {month: Decimal('0.00') for month in months}
+                total_sum = Decimal('0.00')
+                for record in queryset:
+                    for month in months:
+                        val = getattr(record, month)
+                        if val:
+                            result[month] += val.to_decimal()
+                    if record.Total_Emission:
+                        total_sum += record.Total_Emission.to_decimal()
+
+                facility_data = [{
+                    'Facility': facility,
+                    'Financial_Year': financial_year,
+                    'Total_Emission': float(total_sum),
+                    **{month: float(v) for month, v in result.items()}
+                }]
+
+            # ---------- FUEL TYPE PERCENTAGE DATA ----------
+            fuel_queryset = Scope2_Emissions_by_Fuel.objects.all()
+            if financial_year:
+                fuel_queryset = fuel_queryset.filter(Financial_Year=financial_year)
+
+            fuel_grouped = defaultdict(Decimal)
+
+            for record in fuel_queryset:
+                fuel = record.Type or "Unknown"
+                total = record.Total_Emission.to_decimal() if record.Total_Emission else Decimal('0.00')
+                fuel_grouped[fuel] += total
+
+            total_fuel_emission = sum(fuel_grouped.values()) or Decimal('1.00')
+            fuel_data = []
+
+            for Type, total in fuel_grouped.items():
+                percentage = (total / total_fuel_emission * 100).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                fuel_data.append({
+                    "Type": Type,
+                    "Total_Emission": float(total),
+                    "Percentage": float(percentage),
+                    "Financial_Year": financial_year or "All"
+                })
+
+            # ---------- YEAR WISE TOTAL EMISSION ----------
+            year_queryset = Scope2_Emissions_by_Facilities.objects.all()
+            if facility and not financial_year:
+                year_queryset = year_queryset.filter(Facility=facility)
+            elif financial_year and not facility:
+                year_queryset = year_queryset.filter(Financial_Year=financial_year)
+            elif financial_year and facility:
+                year_queryset = year_queryset.filter(Financial_Year=financial_year, Facility=facility)
+
+            yearly_grouped = defaultdict(Decimal)
+            for record in year_queryset:
+                fy = record.Financial_Year or "Unknown"
+                total = record.Total_Emission.to_decimal() if record.Total_Emission else Decimal('0.00')
+                yearly_grouped[fy] += total
+
+            def extract_year(fy_str):
+                try:
+                    return int(fy_str[2:6])
+                except:
+                    return 0
+
+            year_wise_data = []
+            for fy, total in sorted(yearly_grouped.items(), key=lambda x: extract_year(x[0]), reverse=True):
+                year_wise_data.append({
+                    "Financial_Year": fy,
+                    "Total_Emission": float(total)
+                })
+
+            return Response({
+                "facility_emission_data": facility_data,
+                "Type_percentage_data": fuel_data,
+                "year_wise_emission_data": year_wise_data
+            })
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+  
