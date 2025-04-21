@@ -232,6 +232,7 @@ class EnergyConsumptionBreakdown_Dashboard(APIView):
 
 class Electricity_Distribution_Dashboard(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request):
         try:
             financial_year = request.query_params.get('financial_year')
@@ -648,3 +649,535 @@ class Scope2_Emission_Dashboard(APIView):
 
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+
+class Combined_Fuel_Consumption_Dashboard(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        try:
+            financial_year = request.query_params.get('financial_year')
+            facility = request.query_params.get('facility')
+
+            queryset = Fuel_Consumption_Onsite_Combustion_GJ.objects.all()
+
+            if financial_year:
+                queryset = queryset.filter(Financial_Year=financial_year)
+            if facility:
+                queryset = queryset.filter(Facility=facility)
+
+            # 1. Monthly Consumption Grouped by Fuel_Type
+            months = [
+                'Fuel_Consumption_Apr', 'Fuel_Consumption_May', 'Fuel_Consumption_Jun', 'Fuel_Consumption_Jul',
+                'Fuel_Consumption_Aug', 'Fuel_Consumption_Sep', 'Fuel_Consumption_Oct', 'Fuel_Consumption_Nov',
+                'Fuel_Consumption_Dec', 'Fuel_Consumption_Jan', 'Fuel_Consumption_Feb', 'Fuel_Consumption_Mar'
+            ]
+
+            monthly_grouped = defaultdict(lambda: {
+                'data': {month: Decimal('0.00') for month in months},
+                'Total_Fuel_Consumption': Decimal('0.00'),
+                'Facility': facility or 'All',
+                'Financial_Year': financial_year or 'All'
+            })
+
+            for record in queryset:
+                fuel_type = record.Fuel_Type or 'Unknown'
+                for month in months:
+                    val = getattr(record, month)
+                    if val:
+                        monthly_grouped[fuel_type]['data'][month] += val.to_decimal()
+
+                total = record.Total_Fuel_Consumption
+                if total:
+                    monthly_grouped[fuel_type]['Total_Fuel_Consumption'] += total.to_decimal()
+
+            monthly_response = []
+            for fuel_type, data in monthly_grouped.items():
+                entry = {
+                    'Fuel_Type': fuel_type,
+                    'Facility': data['Facility'],
+                    'Financial_Year': data['Financial_Year'],
+                    'Total_Fuel_Consumption': float(data['Total_Fuel_Consumption']),
+                    **{month: float(v) for month, v in data['data'].items()}
+                }
+                monthly_response.append(entry)
+
+            # 2. Distribution Calculation (Percentage)
+            distribution_grouped = defaultdict(Decimal)
+            for obj in queryset:
+                consumption = obj.Total_Fuel_Consumption
+                if consumption is None:
+                    consumption = Decimal('0.00')
+                else:
+                    consumption = consumption.to_decimal()
+
+                # Grouping keys
+                if financial_year and facility:
+                    key = (obj.Financial_Year, obj.Facility, obj.Fuel_Type)
+                elif financial_year:
+                    key = (obj.Fuel_Type,)
+                elif facility:
+                    key = (obj.Facility, obj.Fuel_Type)
+                else:
+                    key = (obj.Fuel_Type,)
+
+                distribution_grouped[key] += consumption
+
+            total_sum = sum(distribution_grouped.values())
+
+            distribution_response = []
+            for key, total in distribution_grouped.items():
+                percentage = (total / total_sum * 100).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+                if financial_year and facility:
+                    year, fac, fuel_type = key
+                    distribution_response.append({
+                        "Financial_Year": year,
+                        "Facility": fac,
+                        "Fuel_Type": fuel_type,
+                        "Total_Fuel_Consumption": float(total),
+                        "Percentage": float(percentage)
+                    })
+                elif financial_year:
+                    fuel_type, = key
+                    distribution_response.append({
+                        "Financial_Year": financial_year,
+                        "Fuel_Type": fuel_type,
+                        "Total_Fuel_Consumption": float(total),
+                        "Percentage": float(percentage)
+                    })
+                elif facility:
+                    fac, fuel_type = key
+                    distribution_response.append({
+                        "Facility": fac,
+                        "Fuel_Type": fuel_type,
+                        "Total_Fuel_Consumption": float(total),
+                        "Percentage": float(percentage)
+                    })
+                else:
+                    fuel_type, = key
+                    distribution_response.append({
+                        "Fuel_Type": fuel_type,
+                        "Total_Fuel_Consumption": float(total),
+                        "Percentage": float(percentage)
+                    })
+
+            return Response({
+                "monthly_consumption": monthly_response,
+                "fuel_distribution": distribution_response
+            })
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
+
+
+class Combined_Electricity_Consumption_Dashboard(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        try:
+            financial_year = request.query_params.get('financial_year')
+            facility = request.query_params.get('facility')
+
+            queryset = Electricity_Consumption_GJ.objects.all()
+
+            if financial_year:
+                queryset = queryset.filter(Financial_Year=financial_year)
+            if facility:
+                queryset = queryset.filter(Facility=facility)
+
+            # -------- 1. Monthly Grouping ----------
+            months = [
+                'Electricity_Consumption_Apr', 'Electricity_Consumption_May', 'Electricity_Consumption_Jun', 'Electricity_Consumption_Jul',
+                'Electricity_Consumption_Aug', 'Electricity_Consumption_Sep', 'Electricity_Consumption_Oct', 'Electricity_Consumption_Nov',
+                'Electricity_Consumption_Dec', 'Electricity_Consumption_Jan', 'Electricity_Consumption_Feb', 'Electricity_Consumption_Mar'
+            ]
+
+            monthly_grouped = defaultdict(lambda: {
+                'data': {month: Decimal('0.00') for month in months},
+                'Total_Electricity_Consumption': Decimal('0.00'),
+                'Facility': facility or 'All',
+                'Financial_Year': financial_year or 'All'
+            })
+
+            for record in queryset:
+                source = record.Source or 'Unknown'
+                for month in months:
+                    val = getattr(record, month)
+                    if val:
+                        monthly_grouped[source]['data'][month] += val.to_decimal()
+
+                total = record.Total_Electricity_Consumption
+                if total:
+                    monthly_grouped[source]['Total_Electricity_Consumption'] += total.to_decimal()
+
+            monthly_response = []
+            for source, data in monthly_grouped.items():
+                entry = {
+                    'Source': source,
+                    'Facility': data['Facility'],
+                    'Financial_Year': data['Financial_Year'],
+                    'Total_Electricity_Consumption': float(data['Total_Electricity_Consumption']),
+                    **{month: float(v) for month, v in data['data'].items()}
+                }
+                monthly_response.append(entry)
+
+            # -------- 2. Distribution with Percentages ----------
+            distribution_grouped = defaultdict(Decimal)
+
+            for obj in queryset:
+                consumption = obj.Total_Electricity_Consumption
+                if consumption is None:
+                    consumption = Decimal('0.00')
+                else:
+                    consumption = consumption.to_decimal()
+
+                if financial_year and facility:
+                    key = (obj.Financial_Year, obj.Facility, obj.Source)
+                elif financial_year:
+                    key = (obj.Source,)
+                elif facility:
+                    key = (obj.Facility, obj.Source)
+                else:
+                    key = (obj.Source,)
+
+                distribution_grouped[key] += consumption
+
+            total_sum = sum(distribution_grouped.values())
+
+            distribution_response = []
+            for key, total in distribution_grouped.items():
+                percentage = (total / total_sum * 100).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+                if financial_year and facility:
+                    year, fac, source = key
+                    distribution_response.append({
+                        "Financial_Year": year,
+                        "Facility": fac,
+                        "Source": source,
+                        "Total_Electricity_Consumption": float(total),
+                        "Percentage": float(percentage)
+                    })
+                elif financial_year:
+                    source, = key
+                    distribution_response.append({
+                        "Financial_Year": financial_year,
+                        "Source": source,
+                        "Total_Electricity_Consumption": float(total),
+                        "Percentage": float(percentage)
+                    })
+                elif facility:
+                    fac, source = key
+                    distribution_response.append({
+                        "Facility": fac,
+                        "Source": source,
+                        "Total_Electricity_Consumption": float(total),
+                        "Percentage": float(percentage)
+                    })
+                else:
+                    source, = key
+                    distribution_response.append({
+                        "Source": source,
+                        "Total_Electricity_Consumption": float(total),
+                        "Percentage": float(percentage)
+                    })
+
+            # -------- Final Response ----------
+            return Response({
+                "monthly_consumption": monthly_response,
+                "electricity_distribution": distribution_response
+            })
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
+        
+
+class Combined_Scope2_Emission_Dashboard(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        try:
+            financial_year = request.query_params.get('financial_year')
+            facility = request.query_params.get('facility')
+
+            queryset = Scope1_Emissions_by_Facilities.objects.all()
+
+            if financial_year:
+                queryset = queryset.filter(Financial_Year=financial_year)
+            if facility:
+                queryset = queryset.filter(Facility=facility)
+
+            months = [
+                'Emission_Apr', 'Emission_May', 'Emission_Jun', 'Emission_Jul',
+                'Emission_Aug', 'Emission_Sep', 'Emission_Oct', 'Emission_Nov',
+                'Emission_Dec', 'Emission_Jan', 'Emission_Feb', 'Emission_Mar'
+            ]
+
+            # Case 1: No filters — group by Facility
+            if not financial_year and not facility:
+                grouped = defaultdict(lambda: {
+                    'Financial_Year': 'All',
+                    'data': {month: Decimal('0.00') for month in months},
+                    'Total_Emission': Decimal('0.00')
+                })
+
+                for record in queryset:
+                    fac = record.Facility or "Unknown"
+                    for month in months:
+                        val = getattr(record, month)
+                        if val:
+                            grouped[fac]['data'][month] += val.to_decimal()
+
+                    total = record.Total_Emission
+                    if total:
+                        grouped[fac]['Total_Emission'] += total.to_decimal()
+
+                response_data = []
+                for fac, data in grouped.items():
+                    entry = {
+                        'Facility': fac,
+                        'Financial_Year': 'All',
+                        'Total_Emission': float(data['Total_Emission']),
+                        **{month: float(v) for month, v in data['data'].items()}
+                    }
+                    response_data.append(entry)
+
+            # Case 2: Only year — group by facility for that year
+            elif financial_year and not facility:
+                grouped = defaultdict(lambda: {
+                    'Financial_Year': financial_year,
+                    'data': {month: Decimal('0.00') for month in months},
+                    'Total_Emission': Decimal('0.00')
+                })
+
+                for record in queryset:
+                    fac = record.Facility or "Unknown"
+                    for month in months:
+                        val = getattr(record, month)
+                        if val:
+                            grouped[fac]['data'][month] += val.to_decimal()
+
+                    total = record.Total_Emission
+                    if total:
+                        grouped[fac]['Total_Emission'] += total.to_decimal()
+
+                response_data = []
+                for fac, data in grouped.items():
+                    entry = {
+                        'Facility': fac,
+                        'Financial_Year': financial_year,
+                        'Total_Emission': float(data['Total_Emission']),
+                        **{month: float(v) for month, v in data['data'].items()}
+                    }
+                    response_data.append(entry)
+
+            # Case 3: only facility - group by all year
+            elif facility and not financial_year:
+                result = {
+                    month: Decimal('0.00') for month in months
+                }
+                total_sum = Decimal('0.00')
+
+                for record in queryset:
+                    for month in months:
+                        val = getattr(record, month)
+                        if val:
+                            result[month] += val.to_decimal()
+
+                    total = record.Total_Emission
+                    if total:
+                        total_sum += total.to_decimal()
+                        
+                response_data = {
+                        'Facility': facility,
+                        'Financial_Year': 'All',  # <-- fixed here
+                        'Total_Emission': float(total_sum),
+                        **{month: float(v) for month, v in result.items()}
+                    }
+            # Case 4: Both filters — exact match
+            else:
+                result = {month: Decimal('0.00') for month in months}
+                total_sum = Decimal('0.00')
+                for record in queryset:
+                    for month in months:
+                        val = getattr(record, month)
+                        if val:
+                            result[month] += val.to_decimal()
+                    total = record.Total_Emission
+                    if total:
+                        total_sum += total.to_decimal()
+
+                response_data = {
+                    'Facility': facility,
+                    'Financial_Year': financial_year,
+                    'Total_Emission': float(total_sum),
+                    **{month: float(v) for month, v in result.items()}
+                }
+
+            return Response(response_data)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+        
+class Waste_Generated_Dashboard(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        try:
+            financial_year = request.query_params.get('financial_year')
+            facility = request.query_params.get('facility')
+
+            queryset = Waste_Generated.objects.all()
+
+            if financial_year:
+                queryset = queryset.filter(Financial_Year=financial_year)
+            if facility:
+                queryset = queryset.filter(Facility=facility)
+
+            months = [
+                'Waste_Generated_Apr', 'Waste_Generated_May', 'Waste_Generated_Jun', 'Waste_Generated_Jul',
+                'Waste_Generated_Aug', 'Waste_Generated_Sep', 'Waste_Generated_Oct', 'Waste_Generated_Nov',
+                'Waste_Generated_Dec', 'Waste_Generated_Jan', 'Waste_Generated_Feb', 'Waste_Generated_Mar'
+            ]
+
+            grouped = defaultdict(lambda: {
+                'data': {month: Decimal('0.00') for month in months},
+                'Waste_Generated_Total': Decimal('0.00')
+            })
+
+            for record in queryset:
+                waste_type = record.Type or 'Unknown'
+
+                for month in months:
+                    val = getattr(record, month)
+                    if val:
+                        grouped[waste_type]['data'][month] += val.to_decimal()
+
+                total = record.Waste_Generated_Total
+                if total:
+                    grouped[waste_type]['Waste_Generated_Total'] += total.to_decimal()
+
+            response_data = []
+            for waste_type, data in grouped.items():
+                entry = {
+                    'Waste_Type': waste_type,
+                    'Facility': facility if facility else 'All',
+                    'Financial_Year': financial_year if financial_year else 'All',
+                    'Waste_Generated_Total': float(data['Waste_Generated_Total']),
+                    **{month: float(val) for month, val in data['data'].items()}
+                }
+                response_data.append(entry)
+
+            return Response(response_data)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+        
+
+      
+class Waste_Recovered_Dashboard(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        try:
+            financial_year = request.query_params.get('financial_year')
+            facility = request.query_params.get('facility')
+
+            queryset = Waste_Recovered.objects.all()
+
+            if financial_year:
+                queryset = queryset.filter(Financial_Year=financial_year)
+            if facility:
+                queryset = queryset.filter(Facility=facility)
+
+            months = [
+                'Waste_Recovered_Apr', 'Waste_Recovered_May', 'Waste_Recovered_Jun', 'Waste_Recovered_Jul',
+                'Waste_Recovered_Aug', 'Waste_Recovered_Sep', 'Waste_Recovered_Oct', 'Waste_Recovered_Nov',
+                'Waste_Recovered_Dec', 'Waste_Recovered_Jan', 'Waste_Recovered_Feb', 'Waste_Recovered_Mar'
+            ]
+
+            grouped = defaultdict(lambda: {
+                'data': {month: Decimal('0.00') for month in months},
+                'Waste_Recovered_Total': Decimal('0.00')
+            })
+
+            for record in queryset:
+                waste_type = record.Waste_Recovered_Category or 'Unknown'
+
+                for month in months:
+                    val = getattr(record, month)
+                    if val:
+                        grouped[waste_type]['data'][month] += val.to_decimal()
+
+                total = record.Waste_Recovered_Total
+                if total:
+                    grouped[waste_type]['Waste_Recovered_Total'] += total.to_decimal()
+
+            response_data = []
+            for waste_type, data in grouped.items():
+                entry = {
+                    'Waste_Type': waste_type,
+                    'Facility': facility if facility else 'All',
+                    'Financial_Year': financial_year if financial_year else 'All',
+                    'Waste_Recovered_Total': float(data['Waste_Recovered_Total']),
+                    **{month: float(val) for month, val in data['data'].items()}
+                }
+                response_data.append(entry)
+
+            return Response(response_data)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+        
+
+
+class Waste_Disposed_Dashboard(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        try:
+            financial_year = request.query_params.get('financial_year')
+            facility = request.query_params.get('facility')
+
+            queryset = Waste_Disposed.objects.all()
+
+            if financial_year:
+                queryset = queryset.filter(Financial_Year=financial_year)
+            if facility:
+                queryset = queryset.filter(Facility=facility)
+
+            months = [
+                'Waste_Disposed_Apr', 'Waste_Disposed_May', 'Waste_Disposed_Jun', 'Waste_Disposed_Jul',
+                'Waste_Disposed_Aug', 'Waste_Disposed_Sep', 'Waste_Disposed_Oct', 'Waste_Disposed_Nov',
+                'Waste_Disposed_Dec', 'Waste_Disposed_Jan', 'Waste_Disposed_Feb', 'Waste_Disposed_Mar'
+            ]
+
+            grouped = defaultdict(lambda: {
+                'data': {month: Decimal('0.00') for month in months},
+                'Waste_Disposed_Total': Decimal('0.00')
+            })
+
+            for record in queryset:
+                waste_type = record.Waste_Disposed_Category or 'Unknown'
+
+                for month in months:
+                    val = getattr(record, month)
+                    if val:
+                        grouped[waste_type]['data'][month] += val.to_decimal()
+
+                total = record.Waste_Disposed_Total
+                if total:
+                    grouped[waste_type]['Waste_Disposed_Total'] += total.to_decimal()
+
+            response_data = []
+            for waste_type, data in grouped.items():
+                entry = {
+                    'Waste_Type': waste_type,
+                    'Facility': facility if facility else 'All',
+                    'Financial_Year': financial_year if financial_year else 'All',
+                    'Waste_Disposed_Total': float(data['Waste_Disposed_Total']),
+                    **{month: float(val) for month, val in data['data'].items()}
+                }
+                response_data.append(entry)
+
+            return Response(response_data)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+        
