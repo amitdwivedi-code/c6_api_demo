@@ -761,10 +761,30 @@ class Combined_Fuel_Consumption_Dashboard(APIView):
                         "Total_Fuel_Consumption": float(total),
                         "Percentage": float(percentage)
                     })
+                    
+             # ---------- YEAR WISE TOTAL Fuel ----------
+            yearly_grouped = defaultdict(Decimal)
+            for record in queryset:
+                fy = record.Financial_Year or "Unknown"
+                total = record.Total_Fuel_Consumption.to_decimal() if record.Total_Fuel_Consumption else Decimal('0.00')
+                yearly_grouped[fy] += total
 
+            def extract_year(fy_str):
+                try:
+                    return int(fy_str[2:6])
+                except:
+                    return 0
+
+            year_wise_data = []
+            for fy, total in sorted(yearly_grouped.items(), key=lambda x: extract_year(x[0]), reverse=True):
+                year_wise_data.append({
+                    "Financial_Year": fy,
+                    "Total_Fuel_Consumption": float(total)
+                })
             return Response({
                 "monthly_consumption": monthly_response,
-                "fuel_distribution": distribution_response
+                "fuel_distribution": distribution_response,
+                "year_wise_data": year_wise_data
             })
 
         except Exception as e:
@@ -881,10 +901,32 @@ class Combined_Electricity_Consumption_Dashboard(APIView):
                         "Percentage": float(percentage)
                     })
 
+
+            # -------- 3. Year Wise  Total Electricity ----------
+            yearly_grouped = defaultdict(Decimal)
+            for record in queryset:
+                fy = record.Financial_Year or "Unknown"
+                total = record.Total_Electricity_Consumption.to_decimal() if record.Total_Electricity_Consumption else Decimal('0.00')
+                yearly_grouped[fy] += total
+
+            def extract_year(fy_str):
+                try:
+                    return int(fy_str[2:6])
+                except:
+                    return 0
+
+            year_wise_data = []
+            for fy, total in sorted(yearly_grouped.items(), key=lambda x: extract_year(x[0]), reverse=True):
+                year_wise_data.append({
+                    "Financial_Year": fy,
+                    "Total_Electricity_Consumption": float(total)
+                })
+
             # -------- Final Response ----------
             return Response({
                 "monthly_consumption": monthly_response,
-                "electricity_distribution": distribution_response
+                "electricity_distribution": distribution_response,
+                "year_wise_data" : year_wise_data
             })
 
         except Exception as e:
