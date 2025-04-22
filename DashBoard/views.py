@@ -935,13 +935,13 @@ class Combined_Electricity_Consumption_Dashboard(APIView):
  
 class Waste_Generated_Dashboard(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request):
         try:
             financial_year = request.query_params.get('financial_year')
             facility = request.query_params.get('facility')
 
             queryset = Waste_Generated.objects.all()
-
             if financial_year:
                 queryset = queryset.filter(Financial_Year=financial_year)
             if facility:
@@ -953,6 +953,7 @@ class Waste_Generated_Dashboard(APIView):
                 'Waste_Generated_Dec', 'Waste_Generated_Jan', 'Waste_Generated_Feb', 'Waste_Generated_Mar'
             ]
 
+            # ---------- MONTH-WISE DATA ----------
             grouped = defaultdict(lambda: {
                 'data': {month: Decimal('0.00') for month in months},
                 'Waste_Generated_Total': Decimal('0.00')
@@ -960,7 +961,6 @@ class Waste_Generated_Dashboard(APIView):
 
             for record in queryset:
                 waste_type = record.Type or 'Unknown'
-
                 for month in months:
                     val = getattr(record, month)
                     if val:
@@ -970,7 +970,7 @@ class Waste_Generated_Dashboard(APIView):
                 if total:
                     grouped[waste_type]['Waste_Generated_Total'] += total.to_decimal()
 
-            response_data = []
+            month_wise_data = []
             for waste_type, data in grouped.items():
                 entry = {
                     'Waste_Type': waste_type,
@@ -979,24 +979,47 @@ class Waste_Generated_Dashboard(APIView):
                     'Waste_Generated_Total': float(data['Waste_Generated_Total']),
                     **{month: float(val) for month, val in data['data'].items()}
                 }
-                response_data.append(entry)
+                month_wise_data.append(entry)
 
-            return Response(response_data)
+            # ---------- YEAR-WISE DATA ----------
+            yearly_grouped = defaultdict(Decimal)
+            for record in queryset:  # Reuse already-filtered queryset
+                fy = record.Financial_Year or "Unknown"
+                total = record.Waste_Generated_Total
+                if total:
+                    yearly_grouped[fy] += total.to_decimal()
+
+            def extract_year(fy_str):
+                try:
+                    return int(fy_str[2:6])
+                except:
+                    return 0
+
+            year_wise_data = []
+            for fy, total in sorted(yearly_grouped.items(), key=lambda x: extract_year(x[0]), reverse=True):
+                year_wise_data.append({
+                    "Financial_Year": fy,
+                    "Total_Waste_Generated": float(total)
+                })
+
+            return Response({
+                "month_wise_data": month_wise_data,
+                "year_wise_data": year_wise_data
+            })
 
         except Exception as e:
             return Response({"error": str(e)}, status=500)
-        
 
       
 class Waste_Recovered_Dashboard(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request):
         try:
             financial_year = request.query_params.get('financial_year')
             facility = request.query_params.get('facility')
 
             queryset = Waste_Recovered.objects.all()
-
             if financial_year:
                 queryset = queryset.filter(Financial_Year=financial_year)
             if facility:
@@ -1008,6 +1031,7 @@ class Waste_Recovered_Dashboard(APIView):
                 'Waste_Recovered_Dec', 'Waste_Recovered_Jan', 'Waste_Recovered_Feb', 'Waste_Recovered_Mar'
             ]
 
+            # ---------- MONTH-WISE DATA ----------
             grouped = defaultdict(lambda: {
                 'data': {month: Decimal('0.00') for month in months},
                 'Waste_Recovered_Total': Decimal('0.00')
@@ -1015,17 +1039,15 @@ class Waste_Recovered_Dashboard(APIView):
 
             for record in queryset:
                 waste_type = record.Waste_Recovered_Category or 'Unknown'
-
                 for month in months:
                     val = getattr(record, month)
                     if val:
                         grouped[waste_type]['data'][month] += val.to_decimal()
-
                 total = record.Waste_Recovered_Total
                 if total:
                     grouped[waste_type]['Waste_Recovered_Total'] += total.to_decimal()
 
-            response_data = []
+            month_wise_data = []
             for waste_type, data in grouped.items():
                 entry = {
                     'Waste_Type': waste_type,
@@ -1034,14 +1056,49 @@ class Waste_Recovered_Dashboard(APIView):
                     'Waste_Recovered_Total': float(data['Waste_Recovered_Total']),
                     **{month: float(val) for month, val in data['data'].items()}
                 }
-                response_data.append(entry)
+                month_wise_data.append(entry)
 
-            return Response(response_data)
+            # ---------- YEAR-WISE RECYCLED & REUSED ----------
+            recycled_yearly = defaultdict(Decimal)
+            reused_yearly = defaultdict(Decimal)
+
+            # Re-filtered base data for grouping without monthly totals
+           
+            for record in queryset:
+                fy = record.Financial_Year or "Unknown"
+                category = (record.Waste_Recovered_Category or "").strip().lower()
+                total = record.Waste_Recovered_Total or Decimal('0.00')
+
+                if category == "recycled":
+                    recycled_yearly[fy] += total.to_decimal()
+                elif category == "re-used":
+                    reused_yearly[fy] += total.to_decimal()
+
+            def extract_year(fy_str):
+                try:
+                    return int(fy_str[2:6])
+                except:
+                    return 0
+
+            year_wise_recycled_data = [
+                {"Financial_Year": fy, "Waste_Recycled_Total": float(total)}
+                for fy, total in sorted(recycled_yearly.items(), key=lambda x: extract_year(x[0]), reverse=True)
+            ]
+
+            year_wise_reused_data = [
+                {"Financial_Year": fy, "Waste_Reused_Total": float(total)}
+                for fy, total in sorted(reused_yearly.items(), key=lambda x: extract_year(x[0]), reverse=True)
+            ]
+
+            return Response({
+                "month_wise_data": month_wise_data,
+                "year_wise_recycled_data": year_wise_recycled_data,
+                "year_wise_reused_data": year_wise_reused_data
+            })
 
         except Exception as e:
             return Response({"error": str(e)}, status=500)
         
-
 
 class Waste_Disposed_Dashboard(APIView):
     permission_classes = [IsAuthenticated]
@@ -1051,7 +1108,6 @@ class Waste_Disposed_Dashboard(APIView):
             facility = request.query_params.get('facility')
 
             queryset = Waste_Disposed.objects.all()
-
             if financial_year:
                 queryset = queryset.filter(Financial_Year=financial_year)
             if facility:
@@ -1063,6 +1119,7 @@ class Waste_Disposed_Dashboard(APIView):
                 'Waste_Disposed_Dec', 'Waste_Disposed_Jan', 'Waste_Disposed_Feb', 'Waste_Disposed_Mar'
             ]
 
+            # ---------- MONTH-WISE DATA ----------
             grouped = defaultdict(lambda: {
                 'data': {month: Decimal('0.00') for month in months},
                 'Waste_Disposed_Total': Decimal('0.00')
@@ -1080,7 +1137,7 @@ class Waste_Disposed_Dashboard(APIView):
                 if total:
                     grouped[waste_type]['Waste_Disposed_Total'] += total.to_decimal()
 
-            response_data = []
+            month_wise_data = []
             for waste_type, data in grouped.items():
                 entry = {
                     'Waste_Type': waste_type,
@@ -1089,14 +1146,52 @@ class Waste_Disposed_Dashboard(APIView):
                     'Waste_Disposed_Total': float(data['Waste_Disposed_Total']),
                     **{month: float(val) for month, val in data['data'].items()}
                 }
-                response_data.append(entry)
+                month_wise_data.append(entry)
 
-            return Response(response_data)
+            # ---------- YEAR-WISE DATA (Incineration & Landfilling) ----------
+            incineration_yearly = defaultdict(Decimal)
+            landfilling_yearly = defaultdict(Decimal)
+
+            yearly_queryset = Waste_Disposed.objects.all()
+            if financial_year:
+                yearly_queryset = yearly_queryset.filter(Financial_Year=financial_year)
+            if facility:
+                yearly_queryset = yearly_queryset.filter(Facility=facility)
+
+            for record in yearly_queryset:
+                fy = record.Financial_Year or "Unknown"
+                category = (record.Waste_Disposed_Category or "").strip().lower()
+                total = record.Waste_Disposed_Total or Decimal('0.00')
+
+                if category == "incineration":
+                    incineration_yearly[fy] += total.to_decimal()
+                elif category == "landfilling":
+                    landfilling_yearly[fy] += total.to_decimal()
+
+            def extract_year(fy_str):
+                try:
+                    return int(fy_str[2:6])
+                except:
+                    return 0
+
+            year_wise_incinerated_data = [
+                {"Financial_Year": fy, "Waste_Incinerated_Total": float(total)}
+                for fy, total in sorted(incineration_yearly.items(), key=lambda x: extract_year(x[0]), reverse=True)
+            ]
+
+            year_wise_landfilling_data = [
+                {"Financial_Year": fy, "Waste_Landfilled_Total": float(total)}
+                for fy, total in sorted(landfilling_yearly.items(), key=lambda x: extract_year(x[0]), reverse=True)
+            ]
+
+            return Response({
+                "month_wise_data": month_wise_data,
+                "year_wise_incinerated_data": year_wise_incinerated_data,
+                "year_wise_landfilling_data": year_wise_landfilling_data
+            })
 
         except Exception as e:
             return Response({"error": str(e)}, status=500)
-
-
 class Combined_Scope1_Emission_Dashboard(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -1433,3 +1528,68 @@ class Combined_Scope2_Emission_Dashboard(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=500)
   
+
+class Total_Waste_Generated_Dashboard(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            financial_year = request.query_params.get('financial_year')
+            facility = request.query_params.get('facility')
+
+            months = [
+                'Waste_Generated_Apr', 'Waste_Generated_May', 'Waste_Generated_Jun', 'Waste_Generated_Jul',
+                'Waste_Generated_Aug', 'Waste_Generated_Sep', 'Waste_Generated_Oct', 'Waste_Generated_Nov',
+                'Waste_Generated_Dec', 'Waste_Generated_Jan', 'Waste_Generated_Feb', 'Waste_Generated_Mar'
+            ]
+
+            # Define a helper to get queryset based on filters
+            def get_queryset(year=None, fac=None):
+                q = Waste_Generated.objects.all()
+                if year:
+                    q = q.filter(Financial_Year=year)
+                if fac:
+                    q = q.filter(Facility=fac)
+                return q
+
+            # Get current and previous financial years
+            if financial_year:
+                current_year = financial_year
+                try:
+                    start_year = int(financial_year[2:6])
+                    prev_year = f"FY{start_year - 1}-{start_year}"
+                except:
+                    prev_year = "Unknown"
+            else:
+                # If no FY is given, use all unique years from the DB
+                all_years = Waste_Generated.objects.values_list("Financial_Year", flat=True).distinct()
+                sorted_years = sorted([y for y in all_years if y and y.startswith("FY")], reverse=True)
+                current_year = sorted_years[0] if sorted_years else "Unknown"
+                try:
+                    start_year = int(current_year[2:6])
+                    prev_year = f"FY{start_year - 1}-{start_year}"
+                except:
+                    prev_year = "Unknown"
+
+            result = {}
+
+            for label, year in [("current", current_year), ("previous", prev_year)]:
+                queryset = get_queryset(year, facility)
+
+                month_data = defaultdict(lambda: Decimal('0.00'))
+
+                for record in queryset:
+                    for month in months:
+                        val = getattr(record, month)
+                        if val:
+                            month_data[month] += val.to_decimal()
+
+                result[f"{label}_year"] = year
+                result[f"{label}_year_month_wise_data"] = {
+                    month: float(val) for month, val in month_data.items()
+                }
+
+            return Response(result)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
