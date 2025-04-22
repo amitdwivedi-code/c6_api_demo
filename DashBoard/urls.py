@@ -22,6 +22,8 @@ urlpatterns = [
     path('waste_generated_dashboard/',views.Waste_Generated_Dashboard.as_view(),name="waste generated summery"),
     path('waste_recovered_dashboard/',views.Waste_Recovered_Dashboard.as_view(),name="waste recovered summery"),
     path('waste_disposed_dashboard/',views.Waste_Disposed_Dashboard.as_view(),name="waste disposed summery"),
+    path('total_waste_generated_dashboard/',views.Total_Waste_Generated_Dashboard.as_view(),name="total waste generated summery"),
+
 
     ############################################# GHG Emission #############################################
     path('combined_scope1_emission_dashboard/',views.Combined_Scope1_Emission_Dashboard.as_view(),name="scope1 emission summery"),
