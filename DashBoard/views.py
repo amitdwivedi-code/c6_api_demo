@@ -1468,29 +1468,37 @@ class Combined_Scope2_Emission_Dashboard(APIView):
                 }]
 
             # ---------- FUEL TYPE PERCENTAGE DATA ----------
-            fuel_queryset = Scope2_Emissions_by_Fuel.objects.all()
-            if financial_year:
-                fuel_queryset = fuel_queryset.filter(Financial_Year=financial_year)
+            percentage_grouped = defaultdict(Decimal)
 
-            fuel_grouped = defaultdict(Decimal)
+            for obj in queryset:
+                total = obj.Total_Emission 
+                if total is None:
+                    total = Decimal('0.00')
+                else:
+                    total = total.to_decimal()  
 
-            for record in fuel_queryset:
-                fuel = record.Type or "Unknown"
-                total = record.Total_Emission.to_decimal() if record.Total_Emission else Decimal('0.00')
-                fuel_grouped[fuel] += total
+                if financial_year and facility:
+                    key = (facility, financial_year)
+                elif financial_year:
+                    key = (obj.Facility or "Unknown", financial_year)
+                elif facility:
+                    key = (facility, "All")
+                else:
+                    key = (obj.Facility or "Unknown", "All")
 
-            total_fuel_emission = sum(fuel_grouped.values()) or Decimal('1.00')
-            fuel_data = []
+                percentage_grouped[key] += total
 
-            for Type, total in fuel_grouped.items():
-                percentage = (total / total_fuel_emission * 100).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-                fuel_data.append({
-                    "Type": Type,
+            total_sum = sum(percentage_grouped.values()) or Decimal('1.00')  # avoid division by zero
+
+            facility_percentage_data = []
+            for (fac, year), total in percentage_grouped.items():
+                percentage = (total / total_sum * 100).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                facility_percentage_data.append({
+                    "Facility": fac,
+                    "Financial_Year": year,
                     "Total_Emission": float(total),
-                    "Percentage": float(percentage),
-                    "Financial_Year": financial_year or "All"
+                    "Percentage": float(percentage)
                 })
-
             # ---------- YEAR WISE TOTAL EMISSION ----------
             year_queryset = Scope2_Emissions_by_Facilities.objects.all()
             if facility and not financial_year:
@@ -1520,8 +1528,8 @@ class Combined_Scope2_Emission_Dashboard(APIView):
                 })
 
             return Response({
-                "facility_emission_data": facility_data,
-                "Type_percentage_data": fuel_data,
+                "monthly_facility_data": facility_data,
+                "Facility_percentage_data": facility_percentage_data,
                 "year_wise_emission_data": year_wise_data
             })
 
