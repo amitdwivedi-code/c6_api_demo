@@ -581,7 +581,7 @@ class Fuel_Distribution_Dashboard(APIView):
                     result.append({
                         "Financial_Year": year,
                         "Facility": fac,
-                        "fuel_type": fuel_type,
+                        "Fuel_Type": fuel_type,
                         "Total_Fuel_Consumption": float(total),
                          "Percentage": float(percentage)
                     })
@@ -589,7 +589,7 @@ class Fuel_Distribution_Dashboard(APIView):
                     fuel_type, = key
                     result.append({
                         "Financial_Year": financial_year,
-                        "fuel_type": fuel_type,
+                        "Fuel_Type": fuel_type,
                         "Total_Fuel_Consumption": float(total),
                          "Percentage": float(percentage)
                     })
@@ -604,7 +604,7 @@ class Fuel_Distribution_Dashboard(APIView):
                 else:
                     fuel_type, = key
                     result.append({
-                        "fuel_type": fuel_type,
+                        "Fuel_Type": fuel_type,
                         "Total_Fuel_Consumption": float(total),
                          "Percentage": float(percentage)
                     })
