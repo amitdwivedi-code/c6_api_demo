@@ -93,66 +93,6 @@ class Companydetails_Dashboard(APIView):
 class EnergyConsumptionBreakdown_Dashboard(APIView):
     permission_classes = [IsAuthenticated]
 
-    # def get(self, request):
-    #     try:
-    #         financial_year = request.query_params.get('financial_year')
-    #         facility = request.query_params.get('facility')
-
-    #         # Querysets with filters
-    #         elec_qs = Electricity_Consumption_GJ.objects.all()
-    #         fuel_qs = Fuel_Consumption_Onsite_Combustion_GJ.objects.all()
-
-    #         if financial_year:
-    #             elec_qs = elec_qs.filter(Financial_Year=financial_year)
-    #             fuel_qs = fuel_qs.filter(Financial_Year=financial_year)
-    #         if facility:
-    #             elec_qs = elec_qs.filter(Facility=facility)
-    #             fuel_qs = fuel_qs.filter(Facility=facility)
-
-    #         # Facility-wise grouping
-    #         elec_data = defaultdict(Decimal)
-    #         fuel_data = defaultdict(Decimal)
-
-    #         # Electricity aggregation
-    #         for obj in elec_qs:
-    #             fac = obj.Facility or "Unknown"
-    #             value = obj.Total_Electricity_Consumption
-    #             value = value.to_decimal() if hasattr(value, "to_decimal") else (value or Decimal("0.00"))
-    #             elec_data[fac] += value
-
-    #         # Fuel aggregation
-    #         for obj in fuel_qs:
-    #             fac = obj.Facility or "Unknown"
-    #             value = obj.Total_Fuel_Consumption
-    #             value = value.to_decimal() if hasattr(value, "to_decimal") else (value or Decimal("0.00"))
-    #             fuel_data[fac] += value
-
-    #         total_elec = sum(elec_data.values()) or Decimal("0.00")
-    #         total_fuel = sum(fuel_data.values()) or Decimal("0.00")
-
-    #         # Union of all facilities found
-    #         all_facilities = set(elec_data.keys()) | set(fuel_data.keys())
-
-    #         result = []
-    #         for fac in all_facilities:
-    #             elec = elec_data.get(fac, Decimal("0.00"))
-    #             fuel = fuel_data.get(fac, Decimal("0.00"))
-    #             elec_pct = (elec / total_elec * 100).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP) if total_elec else Decimal("0.00")
-    #             fuel_pct = (fuel / total_fuel * 100).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP) if total_fuel else Decimal("0.00")
-
-    #             result.append({
-    #                 "Facility": fac,
-    #                 "Total_Electricity_Consumption": float(elec),
-    #                 "Electricity_Percentage": float(elec_pct),
-    #                 "Total_Fuel_Consumption": float(fuel),
-    #                 "Fuel_Percentage": float(fuel_pct)
-    #             })
-
-    #         return Response(result, status=status.HTTP_200_OK)
-
-    #     except Exception as e:
-    #         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
     def get(self, request):
             try:
                 financial_year = request.query_params.get('financial_year')
@@ -1322,16 +1262,9 @@ class Combined_Scope1_Emission_Dashboard(APIView):
                 })
 
            # ---------- YEAR WISE TOTAL EMISSION ----------
-            year_queryset = Scope1_Emissions_by_Facilities.objects.all()
-            if facility and not financial_year:
-                year_queryset = year_queryset.filter(Facility=facility)
-            elif financial_year and not facility:
-                year_queryset = year_queryset.filter(Financial_Year=financial_year)
-            elif financial_year and facility:
-                year_queryset = year_queryset.filter(Financial_Year=financial_year, Facility=facility)
-
+            
             yearly_grouped = defaultdict(Decimal)
-            for record in year_queryset:
+            for record in queryset:
                 fy = record.Financial_Year or "Unknown"
                 total = record.Total_Emission.to_decimal() if record.Total_Emission else Decimal('0.00')
                 yearly_grouped[fy] += total
