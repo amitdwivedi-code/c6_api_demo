@@ -1500,16 +1500,9 @@ class Combined_Scope2_Emission_Dashboard(APIView):
                     "Percentage": float(percentage)
                 })
             # ---------- YEAR WISE TOTAL EMISSION ----------
-            year_queryset = Scope2_Emissions_by_Facilities.objects.all()
-            if facility and not financial_year:
-                year_queryset = year_queryset.filter(Facility=facility)
-            elif financial_year and not facility:
-                year_queryset = year_queryset.filter(Financial_Year=financial_year)
-            elif financial_year and facility:
-                year_queryset = year_queryset.filter(Financial_Year=financial_year, Facility=facility)
-
+           
             yearly_grouped = defaultdict(Decimal)
-            for record in year_queryset:
+            for record in queryset:
                 fy = record.Financial_Year or "Unknown"
                 total = record.Total_Emission.to_decimal() if record.Total_Emission else Decimal('0.00')
                 yearly_grouped[fy] += total
