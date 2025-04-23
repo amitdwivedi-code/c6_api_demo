@@ -344,31 +344,15 @@ class Water_Consumption_Dashboard(APIView):
                         val = getattr(record, month)
                         if val:
                             grouped[fac][month] += val.to_decimal()
-                response_data = {
-                    facility: {month: float(val) for month, val in data.items()}
-                    for facility, data in grouped.items()
-                }
+                response_data = [
+                    {
+                        "Facility": fac,
+                        **{month: float(val) for month, val in data.items()}
+                    }
+                    for fac, data in grouped.items()
+                ]
 
-            # Case 2: Only financial year OR only facility → sum month-wise
-            elif financial_year and not facility:
-                result = {month: Decimal('0.00') for month in months}
-                for record in queryset:
-                    for month in months:
-                        val = getattr(record, month)
-                        if val:
-                            result[month] += val.to_decimal()
-                response_data = {month: float(val) for month, val in result.items()}
-
-            elif facility and not financial_year:
-                result = {month: Decimal('0.00') for month in months}
-                for record in queryset:
-                    for month in months:
-                        val = getattr(record, month)
-                        if val:
-                            result[month] += val.to_decimal()
-                response_data = {month: float(val) for month, val in result.items()}
-
-            # Case 3: Both filters → single facility & year
+            # Case 2 & 3: At least one filter
             else:
                 result = {month: Decimal('0.00') for month in months}
                 for record in queryset:
@@ -376,13 +360,17 @@ class Water_Consumption_Dashboard(APIView):
                         val = getattr(record, month)
                         if val:
                             result[month] += val.to_decimal()
-                response_data = {month: float(val) for month, val in result.items()}
+                response_data = {
+                    "Facility": facility or "All",
+                    "Financial_Year": financial_year or "All",
+                    **{month: float(val) for month, val in result.items()}
+                }
 
             return Response(response_data)
 
         except Exception as e:
             return Response({"error": str(e)}, status=500)
-        
+
 
 class Scope1_Emission_Dashboard(APIView):
     permission_classes = [IsAuthenticated]
