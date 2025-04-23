@@ -320,7 +320,6 @@ class Water_Consumption_Dashboard(APIView):
             financial_year = request.query_params.get('financial_year')
             facility = request.query_params.get('facility')
 
-            # Base Queryset
             queryset = Water_Consumption.objects.all()
 
             if financial_year:
@@ -347,12 +346,45 @@ class Water_Consumption_Dashboard(APIView):
                 response_data = [
                     {
                         "Facility": fac,
+                        "Financial_Year": "All",
                         **{month: float(val) for month, val in data.items()}
                     }
                     for fac, data in grouped.items()
                 ]
 
-            # Case 2 & 3: At least one filter
+            # Case 2: Only financial year → group by Facility
+            elif financial_year and not facility:
+                grouped = defaultdict(lambda: {month: Decimal('0.00') for month in months})
+                for record in queryset:
+                    fac = record.Facility or "Unknown"
+                    for month in months:
+                        val = getattr(record, month)
+                        if val:
+                            grouped[fac][month] += val.to_decimal()
+                response_data = [
+                    {
+                        "Facility": fac,
+                        "Financial_Year": financial_year,
+                        **{month: float(val) for month, val in data.items()}
+                    }
+                    for fac, data in grouped.items()
+                ]
+
+            # Case 3: Only facility → aggregate for all years
+            elif facility and not financial_year:
+                result = {month: Decimal('0.00') for month in months}
+                for record in queryset:
+                    for month in months:
+                        val = getattr(record, month)
+                        if val:
+                            result[month] += val.to_decimal()
+                response_data = {
+                    "Facility": facility,
+                    "Financial_Year": "All",
+                    **{month: float(val) for month, val in result.items()}
+                }
+
+            # Case 4: Both filters → single facility & year
             else:
                 result = {month: Decimal('0.00') for month in months}
                 for record in queryset:
@@ -361,8 +393,8 @@ class Water_Consumption_Dashboard(APIView):
                         if val:
                             result[month] += val.to_decimal()
                 response_data = {
-                    "Facility": facility or "All",
-                    "Financial_Year": financial_year or "All",
+                    "Facility": facility,
+                    "Financial_Year": financial_year,
                     **{month: float(val) for month, val in result.items()}
                 }
 
@@ -370,7 +402,6 @@ class Water_Consumption_Dashboard(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=500)
-
 
 class Scope1_Emission_Dashboard(APIView):
     permission_classes = [IsAuthenticated]
