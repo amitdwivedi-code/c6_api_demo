@@ -1537,7 +1537,7 @@ class Total_Waste_Generated_Dashboard(APIView):
                         if val:
                             month_data[month] += val.to_decimal()
 
-                result[f"{label}_year"] = year
+               
                 result[f"{label}_year_month_wise_data"] = {
                     month: float(val) for month, val in month_data.items()
                 }
