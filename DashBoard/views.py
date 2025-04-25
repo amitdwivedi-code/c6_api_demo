@@ -14,7 +14,7 @@ from django.db.models import Sum, F, FloatField, DecimalField, ExpressionWrapper
 from decimal import Decimal, ROUND_HALF_UP
 from collections import defaultdict
 from django.db.models.functions import Coalesce
-
+from Workplace.models import *
 
 class Companydetails_Dashboard(APIView):
     permission_classes = [IsAuthenticated]
@@ -1543,6 +1543,79 @@ class Total_Waste_Generated_Dashboard(APIView):
                 }
 
             return Response(result)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+
+
+class EmployeeSummaryDashboard(APIView):
+    def get(self, request):
+        try:
+            financial_year = request.query_params.get("financial_year")
+            facility = request.query_params.get("facility")
+            gender = request.query_params.get("gender")  # "male" or "female"
+            emp_type = request.query_params.get("type")  # "permanent" or "non_permanent"
+
+            # Step 1: Get all precomputed employee data
+            all_data = calculate_total_employees()
+
+            # Step 2: Filter by year/facility if provided
+            if financial_year:
+                all_data = [item for item in all_data if item["Financial_Year"] == financial_year]
+            if facility:
+                all_data = [item for item in all_data if item["Facility"] == facility]
+
+            response_data = []
+
+            # Step 3: Apply filtering based on gender and type if present
+            for record in all_data:
+                entry = {
+                    "Financial_Year": record["Financial_Year"],
+                    "Facility": record["Facility"]
+                }
+
+                if not gender and not emp_type:
+                    # Return all
+                    entry.update({
+                        "Male_Permanent": record["Male_Permanent"],
+                        "Male_Non_Permanent": record["Male_Non_Permanent"],
+                        "Female_Permanent": record["Female_Permanent"],
+                        "Female_Non_Permanent": record["Female_Non_Permanent"],
+                        "Total_Male": record["Total_Male"],
+                        "Total_Female": record["Total_Female"],
+                        "Percentage_Male": record["Percentage_Male"],
+                        "Percentage_Female": record["Percentage_Female"],
+                    })
+
+                else:
+                    if gender == "male":
+                        if emp_type == "permanent":
+                            entry["Male_Permanent"] = record["Male_Permanent"]
+                        elif emp_type == "non_permanent":
+                            entry["Male_Non_Permanent"] = record["Male_Non_Permanent"]
+                        else:
+                            entry.update({
+                                "Male_Permanent": record["Male_Permanent"],
+                                "Male_Non_Permanent": record["Male_Non_Permanent"],
+                                "Total_Male": record["Total_Male"],
+                                "Percentage_Male": record["Percentage_Male"]
+                            })
+                    elif gender == "female":
+                        if emp_type == "permanent":
+                            entry["Female_Permanent"] = record["Female_Permanent"]
+                        elif emp_type == "non_permanent":
+                            entry["Female_Non_Permanent"] = record["Female_Non_Permanent"]
+                        else:
+                            entry.update({
+                                "Female_Permanent": record["Female_Permanent"],
+                                "Female_Non_Permanent": record["Female_Non_Permanent"],
+                                "Total_Female": record["Total_Female"],
+                                "Percentage_Female": record["Percentage_Female"]
+                            })
+
+                response_data.append(entry)
+
+            return Response(response_data)
 
         except Exception as e:
             return Response({"error": str(e)}, status=500)
