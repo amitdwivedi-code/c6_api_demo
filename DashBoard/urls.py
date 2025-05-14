@@ -29,8 +29,10 @@ urlpatterns = [
     path('combined_scope1_emission_dashboard/',views.Combined_Scope1_Emission_Dashboard.as_view(),name="scope1 emission summery"),
     path('combined_scope2_emission_dashboard/',views.Combined_Scope2_Emission_Dashboard.as_view(),name="scope2 emission summery"),
 
-    ############################################# Workforce #############################################
-    path('employee_summary_dashboard/',views.EmployeeSummaryDashboard.as_view(),name="employees summery"),
+    ############################################# Workforce ################################################
+    path('employee_summary_dashboard/',views.CombinedEmployeeWorkerDashboard.as_view(),name="workforce Emp, permant vs non-permants workforce workers"),
+    path('plant_wise_distribution/',views.PlantWiseDistributionDashboard.as_view(),name="plant wise distribution and total workers month"),
+    path('female_distribution/', views.FemaleDistributionDashboard.as_view(), name='female_distribution'),
     
     
 
