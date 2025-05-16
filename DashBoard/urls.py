@@ -30,11 +30,17 @@ urlpatterns = [
     path('combined_scope2_emission_dashboard/',views.Combined_Scope2_Emission_Dashboard.as_view(),name="scope2 emission summery"),
 
     ############################################# Workforce ################################################
-    path('employee_summary_dashboard/',views.CombinedEmployeeWorkerDashboard.as_view(),name="workforce Emp, permant vs non-permants workforce workers"),
+    path('employee_summary_dashboard/',views.CombinedEmployeeWorkerDashboard.as_view(),name="workforce Emp, permant vs non-permants, workforce workers"),
     path('plant_wise_distribution/',views.PlantWiseDistributionDashboard.as_view(),name="plant wise distribution and total workers month"),
     path('female_distribution/', views.FemaleDistributionDashboard.as_view(), name='female_distribution'),
     
-    
+    ############################################# Traning ################################################
+    path('total_programmes_held_by_facility/', views.TotalProgrammesHeldByFacilityDashboard.as_view(), name='total programmes held by facility'),
+    path('skill_upgradtion_traning/',views.SkillUpgradtionTraningDashborad.as_view(), name='skill upgradtion traning'),
+    path('traning_ingeneral_by_month/',views.TraningIngeneralByMonthDashborad.as_view(), name='traning ingeneral by month'),
+    path('human_rights_training/',views.HumanRightsTrainingDashboard.as_view(), name='human rights training'),
+    path('health_and_safety_traning_by_gender/',views.HealthSafetyTrainingByGender.as_view(), name='health and safety traning by gender'),
+    path('training_ingeneral_by_segment/',views.TrainingIngeneralBySegment.as_view(), name='training ingeneral by segment'),
 
 
     

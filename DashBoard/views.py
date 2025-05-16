@@ -1876,3 +1876,317 @@ class FemaleDistributionDashboard(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=500)
+
+
+class TotalProgrammesHeldByFacilityDashboard(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            fy = request.query_params.get("financial_year")
+            facility = request.query_params.get("facility")
+            segment = request.query_params.get("segment")
+
+            qs = Awareness_Programmes_On_ESG.objects.all()
+
+            if fy:
+                qs = qs.filter(Financial_Year=fy)
+            if facility:
+                qs = qs.filter(Facility=facility)
+            if segment:
+                qs = qs.filter(Segment=segment)
+
+            total_topics_covered = 0
+            grouped_data = defaultdict(lambda: defaultdict(int))
+            
+
+            for record in qs:
+                fac = record.Facility or "Unknown"
+                seg = record.Segment or "Unknown"
+                grouped_data[fac][seg] += record.Total_No_Of_Programmes_Held or 0
+                total_topics_covered += int(record.Topics_Covered) or 0
+
+                  
+
+            response = []
+            for fac, segments in grouped_data.items():
+                for seg, total in segments.items():
+                    response.append({
+                        "Facility": fac,
+                        "Segment": seg,
+                        "Total_No_Of_Programmes_Held": total
+                        
+                    })
+
+            response.append({
+                "Topics_Covered_Count": total_topics_covered
+            })
+
+
+            return Response(response)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)   
+        
+class SkillUpgradtionTraningDashborad(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            fy = request.query_params.get("financial_year")
+            facility = request.query_params.get("facility")
+            segment = request.query_params.get("segment")
+            gender = request.query_params.get("gender")  # "Male" or "Female"
+
+            qs = On_Skill_Upgradation.objects.all()
+
+            if fy:
+                qs = qs.filter(Financial_Year=fy)
+            if facility:
+                qs = qs.filter(Facility=facility)
+            if segment:
+                qs = qs.filter(Segment=segment)
+
+            data = defaultdict(lambda: {"male": 0, "female": 0})
+
+            for record in qs:
+                fac = record.Facility or "Unknown"
+                if gender in ["male", None]:
+                    data[fac]["male"] += record.No_Of_Male or 0
+                if gender in ["female", None]:
+                    data[fac]["female"] += record.No_Of_Female or 0
+
+            response = []
+            for fac, values in data.items():
+                if gender == "male":
+                    response.append({
+                        "Facility": fac,
+                        "Gender": "male",
+                        "Total_Gender": values["male"]
+                    })
+                elif gender == "female":
+                    response.append({
+                        "Facility": fac,
+                        "Gender": "female",
+                        "Total_Gender": values["female"]
+                    })
+                else:
+                    response.extend([
+                        {
+                            "Facility": fac,
+                            "Gender": "male",
+                            "Total_Gender": values["male"]
+                        },
+                        {
+                            "Facility": fac,
+                            "Gender": "female",
+                            "Total_Gender": values["female"]
+                        }
+                    ])
+
+            return Response(response)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+        
+class TraningIngeneralByMonthDashborad(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            fy = request.query_params.get("financial_year")
+            facility = request.query_params.get("facility")
+            segment = request.query_params.get("segment")
+
+            qs = Ingeneral.objects.all()
+
+            # Apply filters
+            if fy:
+                qs = qs.filter(Financial_Year=fy)
+            if facility:
+                qs = qs.filter(Facility=facility)
+            if segment:
+                qs = qs.filter(Segment=segment)
+
+            # Month field mapping
+            month_fields = {
+                "Apr": "Ingeneral_Consumption_Apr",
+                "May": "Ingeneral_Consumption_May",
+                "Jun": "Ingeneral_Consumption_Jun",
+                "Jul": "Ingeneral_Consumption_Jul",
+                "Aug": "Ingeneral_Consumption_Aug",
+                "Sep": "Ingeneral_Consumption_Sep",
+                "Oct": "Ingeneral_Consumption_Oct",
+                "Nov": "Ingeneral_Consumption_Nov",
+                "Dec": "Ingeneral_Consumption_Dec",
+                "Jan": "Ingeneral_Consumption_Jan",
+                "Feb": "Ingeneral_Consumption_Feb",
+                "Mar": "Ingeneral_Consumption_Mar",
+            }
+
+            # Initialize month totals
+            month_totals = {month: 0 for month in month_fields}
+
+            for record in qs:
+                for month, field in month_fields.items():
+                    value = getattr(record, field) or 0
+                    value = float(str(value)) if value is not None else 0
+                    month_totals[month] += float(value)
+
+            # Format response
+            response = [
+                {"Month": month, "Value": round(value, 2)}
+                for month, value in month_totals.items()
+            ]
+
+            return Response(response)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+        
+
+class HumanRightsTrainingDashboard(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            fy = request.query_params.get("financial_year")
+            facility = request.query_params.get("facility")
+
+            queryset = On_Human_Rights_Issues_And_Policies.objects.all()
+
+            if fy:
+                queryset = queryset.filter(Financial_Year=fy)
+            if facility:
+                queryset = queryset.filter(Facility=facility)
+
+            result = {}
+            total_human_rights_training = 0 
+
+            for entry in queryset:
+                segment = entry.Segment or "Unknown"
+                if segment not in result:
+                    result[segment] = {
+                        "Permanent": 0,
+                        "Non-Permanent": 0
+                    }
+
+                permanent = int(entry.Total_Permanent_Covered or 0)
+                non_permanent = int(entry.Total_Non_Permanent_Covered or 0)
+
+                result[segment]["Permanent"] += permanent
+                result[segment]["Non-Permanent"] += non_permanent
+                total_human_rights_training += permanent + non_permanent
+
+            # Convert result into list for frontend
+            data = []
+            for segment, values in result.items():
+                data.append({
+                    "Segment": segment,
+                    "Type": "Permanent",
+                    "Total": values["Permanent"]
+                })
+                data.append({
+                    "Segment": segment,
+                    "Type": "Non-Permanent",
+                    "Total": values["Non-Permanent"]
+                })
+
+            return Response({  
+                "data": data,
+                "Total_human_rights_training": total_human_rights_training,
+            })
+
+            return Response(data)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+        
+class HealthSafetyTrainingByGender(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            fy = request.query_params.get("financial_year")
+            facility = request.query_params.get("facility")
+
+            queryset = On_Health_And_Safety_Measures.objects.all()
+
+            if fy:
+                queryset = queryset.filter(Financial_Year=fy)
+            if facility:
+                queryset = queryset.filter(Facility=facility)
+
+            result = {}
+            total_training_health_and_safety = 0
+
+            for entry in queryset:
+                fac = entry.Facility or "Unknown"
+                if fac not in result:
+                    result[fac] = {"male": 0, "female": 0}
+                result[fac]["male"] += entry.No_Of_Male or 0
+                result[fac]["female"] += entry.No_Of_Female or 0
+                total = entry.Total_Male_And_Female or 0
+                total_training_health_and_safety += total
+
+            data = []
+            for fac, gender_counts in result.items():
+                data.append({
+                    "Facility": fac,
+                    "Gender": "male",
+                    "Total": gender_counts["male"]
+                })
+                data.append({
+                    "Facility": fac,
+                    "Gender": "female",
+                    "Total": gender_counts["female"]
+                })
+            return Response({
+            "data": data,
+            "total_training_health_and_safety": total_training_health_and_safety
+            })
+            
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+        
+
+class TrainingIngeneralBySegment(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            fy = request.query_params.get("financial_year")
+            facility = request.query_params.get("facility")
+
+            queryset = Ingeneral.objects.all()
+            if fy:
+                queryset = queryset.filter(Financial_Year=fy)
+            if facility:
+                queryset = queryset.filter(Facility=facility)
+
+            # Manual aggregation
+            segment_totals = defaultdict(float)
+
+            for record in queryset:
+                segment = record.Segment or "Unknown"
+                value = record.Total_Ingeneral_Consumption
+
+                if isinstance(value, Decimal128):
+                    value = float(value.to_decimal())
+                elif value is None:
+                    value = 0.0
+                else:
+                    value = float(value)
+
+                segment_totals[segment] += value
+
+            result = [
+                {"Segment": segment, "Total_Ingeneral_Consumption": round(total, 2)}
+                for segment, total in segment_totals.items()
+            ]
+
+            return Response(result)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
