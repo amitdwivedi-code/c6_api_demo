@@ -1853,6 +1853,7 @@ class FemaleDistributionDashboard(APIView):
     def get(self, request):
         try:
             fy = request.query_params.get("financial_year")
+            financial_year_label = fy if fy else "All"
 
             def get_employee_female_percentage():
                 qs = EmployeeSummary.objects.all()
@@ -1868,9 +1869,10 @@ class FemaleDistributionDashboard(APIView):
                     male_non_perm = convert_decimal128_to_float(obj.Male_Non_Permanent)
 
                     total_female += female_perm + female_non_perm
-                    total_all += female_perm + female_non_perm  + male_perm + male_non_perm
+                    total_all += female_perm + female_non_perm + male_perm + male_non_perm
 
-                return round((total_female), 2), round((total_female / total_all) * 100, 2) if total_all > 0 else 0.0
+                percentage = round((total_female / total_all) * 100, 2) if total_all > 0 else 0.0
+                return round(total_female, 2), percentage
 
             def get_worker_female_percentage():
                 qs = WorkerSummary.objects.all()
@@ -1886,9 +1888,10 @@ class FemaleDistributionDashboard(APIView):
                     male_non_perm = convert_decimal128_to_float(obj.Male_Non_Permanent)
 
                     total_female += female_perm + female_non_perm
-                    total_all += female_perm + female_non_perm  + male_perm + male_non_perm
+                    total_all += female_perm + female_non_perm + male_perm + male_non_perm
 
-                return round(total_female, 2), round((total_female / total_all) * 100, 2) if total_all > 0 else 0.0
+                percentage = round((total_female / total_all) * 100, 2) if total_all > 0 else 0.0
+                return round(total_female, 2), percentage
 
             def get_female_total_from_model(model, total_field_name):
                 qs = model.objects.all()
@@ -1901,23 +1904,51 @@ class FemaleDistributionDashboard(APIView):
                 for obj in qs:
                     value = convert_decimal128_to_float(getattr(obj, total_field_name, 0))
                     overall_total += value
-
                     if obj.Gender and obj.Gender.lower() == "female":
                         female_total += value
 
                 percentage = round((female_total / overall_total) * 100, 2) if overall_total > 0 else 0.0
                 return round(female_total, 2), percentage
-            
-            return Response({
-                "Employee_Female_Percentage": get_employee_female_percentage(),
-                "Worker_Female_Percentage": get_worker_female_percentage(),
-                "BoardOfDirectors_Female_Percentage": get_female_total_from_model(Management_Board_of_Directors, "Total_Board_of_Directors"),
-                "KeyManagementPersonnel_Female_Percentage":  get_female_total_from_model(Key_Management_Personnel, "Total_Key_Management_Personnel"),
+
+            # Build the final response list
+            response_data = []
+
+            employee_female, emp_pct = get_employee_female_percentage()
+            response_data.append({
+                "Financial_Year": financial_year_label,
+                "Segment": "Employees",
+                "Total_female": employee_female,
+                "Female_Percentage": emp_pct
             })
+
+            worker_female, worker_pct = get_worker_female_percentage()
+            response_data.append({
+                "Financial_Year": financial_year_label,
+                "Segment": "Workers",
+                "Total_female": worker_female,
+                "Female_Percentage": worker_pct
+            })
+
+            board_female, board_pct = get_female_total_from_model(Management_Board_of_Directors, "Total_Board_of_Directors")
+            response_data.append({
+                "Financial_Year": financial_year_label,
+                "Segment": "BoardOfDirectors",
+                "Total_female": board_female,
+                "Female_Percentage": board_pct
+            })
+
+            key_female, key_pct = get_female_total_from_model(Key_Management_Personnel, "Total_Key_Management_Personnel")
+            response_data.append({
+                "Financial_Year": financial_year_label,
+                "Segment": "KeyManagementPersonnel",
+                "Total_female": key_female,
+                "Female_Percentage": key_pct
+            })
+
+            return Response({"female_distribution": response_data})
 
         except Exception as e:
             return Response({"error": str(e)}, status=500)
-
 
 class TotalProgrammesHeldByFacilityDashboard(APIView):
     permission_classes = [IsAuthenticated]
