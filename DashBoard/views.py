@@ -1697,6 +1697,10 @@ class CombinedEmployeeWorkerDashboard(APIView):
                     elif not fy and facility_filter:
                         entry["Facility"] = facility_filter
 
+                    total_male = group["Total_Male"]
+                    total_female = group["Total_Female"]
+                    total = total_male + total_female
+
                     if not gender and not emp_type:
                         entry.update({
                             "Male_Permanent": group["Male_Permanent"],
@@ -1704,30 +1708,57 @@ class CombinedEmployeeWorkerDashboard(APIView):
                             "Female_Permanent": group["Female_Permanent"],
                             "Female_Non_Permanent": group["Female_Non_Permanent"],
                             "Total_Male": group["Total_Male"],
-                            "Total_Female": group["Total_Female"]
+                            "Total_Female": group["Total_Female"],
+                            "Male_Percentage": f"{(total_male / total * 100):.2f}%" if total else "0.00%",
+                            "Female_Percentage": f"{(total_female / total * 100):.2f}%" if total else "0.00%",
                         })
                     else:
                         if gender == "male":
                             if emp_type == "permanent":
+                                total_permanent = group["Male_Permanent"] + group["Female_Permanent"]
                                 entry["Male_Permanent"] = group["Male_Permanent"]
+                                entry["Male_Percentage"] = (
+                                    f"{(group['Male_Permanent'] / total_permanent * 100):.2f}%"
+                                    if total_permanent else "0.00%"
+                                )
                             elif emp_type == "non_permanent":
+                                total_non_permanent = group["Male_Non_Permanent"] + group["Female_Non_Permanent"]
                                 entry["Male_Non_Permanent"] = group["Male_Non_Permanent"]
+                                entry["Male_Percentage"] = (
+                                    f"{(group['Male_Non_Permanent'] / total_non_permanent * 100):.2f}%"
+                                    if total_non_permanent else "0.00%"
+                                )
                             else:
+                                total = group["Total_Male"] + group["Total_Female"]
                                 entry.update({
                                     "Male_Permanent": group["Male_Permanent"],
                                     "Male_Non_Permanent": group["Male_Non_Permanent"],
-                                    "Total_Male": group["Total_Male"]
+                                    "Total_Male": group["Total_Male"],
+                                    "Male_Percentage": f"{(group['Total_Male'] / total * 100):.2f}%" if total else "0.00%"
                                 })
                         elif gender == "female":
                             if emp_type == "permanent":
+                                total_permanent = group["Male_Permanent"] + group["Female_Permanent"]
                                 entry["Female_Permanent"] = group["Female_Permanent"]
+                                entry["Female_Percentage"] = (
+                                    f"{(group['Female_Permanent'] / total_permanent * 100):.2f}%"
+                                    if total_permanent else "0.00%"
+                                )
                             elif emp_type == "non_permanent":
+                                total_non_permanent = group["Male_Non_Permanent"] + group["Female_Non_Permanent"]
                                 entry["Female_Non_Permanent"] = group["Female_Non_Permanent"]
+                                entry["Female_Percentage"] = (
+                                        f"{(group['Female_Non_Permanent'] / total_non_permanent * 100):.2f}%"
+                                        if total_non_permanent else "0.00%"
+                                )
                             else:
+                                total = group["Total_Male"] + group["Total_Female"]
                                 entry.update({
+                                    
                                     "Female_Permanent": group["Female_Permanent"],
                                     "Female_Non_Permanent": group["Female_Non_Permanent"],
-                                    "Total_Female": group["Total_Female"]
+                                    "Total_Female": group["Total_Female"],
+                                     "Female_Percentage": f"{(group['Total_Female'] / total * 100):.2f}%" if total else "0.00%"
                                 })
 
                     formatted.append(entry)
