@@ -1546,127 +1546,6 @@ class Total_Waste_Generated_Dashboard(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=500)
-
-class CombinedEmployeeWorkerDashboard(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        try:
-            fy = request.query_params.get("financial_year")
-            facility_filter = request.query_params.get("facility")
-            gender = request.query_params.get("gender")
-            emp_type = request.query_params.get("type")
-
-            employee_data = calculate_total_employees()
-            worker_data = calculate_total_workers()
-
-            def process_data(data_list, label):
-                grouped = defaultdict(lambda: {
-                    "Facility": "",
-                    "Male_Permanent": 0.0,
-                    "Male_Non_Permanent": 0.0,
-                    "Female_Permanent": 0.0,
-                    "Female_Non_Permanent": 0.0,
-                    "Total_Male": 0.0,
-                    "Total_Female": 0.0,
-                })
-
-                for record in data_list:
-                    if fy and record["Financial_Year"] != fy:
-                        continue
-                    if facility_filter and record["Facility"] != facility_filter:
-                        continue
-
-                    key = record["Facility"] if not fy else (record["Facility"], record["Financial_Year"])
-                    grouped[key]["Facility"] = record["Facility"]
-                    if fy:
-                        grouped[key]["Financial_Year"] = record["Financial_Year"]
-
-                    grouped[key]["Male_Permanent"] += record["Male_Permanent"]
-                    grouped[key]["Male_Non_Permanent"] += record["Male_Non_Permanent"]
-                    grouped[key]["Female_Permanent"] += record["Female_Permanent"]
-                    grouped[key]["Female_Non_Permanent"] += record["Female_Non_Permanent"]
-                    grouped[key]["Total_Male"] += record["Total_Male"]
-                    grouped[key]["Total_Female"] += record["Total_Female"]
-
-                # Format response
-                formatted = []
-                for group in grouped.values():
-                    entry = {"Facility": group["Facility"]}
-                    if fy:
-                        entry["Financial_Year"] = group["Financial_Year"]
-
-                    if not gender and not emp_type:
-                        entry.update({
-                            "Male_Permanent": group["Male_Permanent"],
-                            "Male_Non_Permanent": group["Male_Non_Permanent"],
-                            "Female_Permanent": group["Female_Permanent"],
-                            "Female_Non_Permanent": group["Female_Non_Permanent"],
-                            "Total_Male": group["Total_Male"],
-                            "Total_Female": group["Total_Female"]
-                        })
-                    else:
-                        if gender == "male":
-                            if emp_type == "permanent":
-                                entry["Male_Permanent"] = group["Male_Permanent"]
-                            elif emp_type == "non_permanent":
-                                entry["Male_Non_Permanent"] = group["Male_Non_Permanent"]
-                            else:
-                                entry.update({
-                                    "Male_Permanent": group["Male_Permanent"],
-                                    "Male_Non_Permanent": group["Male_Non_Permanent"],
-                                    "Total_Male": group["Total_Male"]
-                                })
-                        elif gender == "female":
-                            if emp_type == "permanent":
-                                entry["Female_Permanent"] = group["Female_Permanent"]
-                            elif emp_type == "non_permanent":
-                                entry["Female_Non_Permanent"] = group["Female_Non_Permanent"]
-                            else:
-                                entry.update({
-                                    "Female_Permanent": group["Female_Permanent"],
-                                    "Female_Non_Permanent": group["Female_Non_Permanent"],
-                                    "Total_Female": group["Total_Female"]
-                                })
-                
-                    formatted.append(entry)
-
-                return formatted
-            
-            total_new_hires = get_new_hires_summary(
-                fy=fy,
-                facility=facility_filter,
-                gender=gender,
-                emp_type=emp_type,
-            )
-            total_wokers_hires = get_worker_new_hires_summary(
-                fy=fy,
-                facility=facility_filter,
-                gender=gender,
-                emp_type=emp_type,
-            )
-            total_employees_hires = get_employess_new_hires_summary(
-                fy=fy,
-                facility=facility_filter,
-                gender=gender,
-                emp_type=emp_type,
-            )
-            response = {
-                "employees": process_data(employee_data, "employees"),
-                "workers": process_data(worker_data, "workers"),
-                "total_new_hires": total_new_hires,
-                "total_wokers_hires":total_wokers_hires,
-                "total_employees_hires":total_employees_hires
-            }
-
-            return Response(response)
-
-        except Exception as e:
-            return Response({"error": str(e)}, status=500)
-
-
-
-
 class PlantWiseDistributionDashboard(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -1804,6 +1683,181 @@ class PlantWiseDistributionDashboard(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=500)
+
+
+class CombinedEmployeeWorkerDashboard(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            fy = request.query_params.get("financial_year")
+            facility_filter = request.query_params.get("facility")
+            gender = request.query_params.get("gender")
+            emp_type = request.query_params.get("type")
+
+            employee_data = calculate_total_employees()
+            worker_data = calculate_total_workers()
+
+            def process_data(data_list, label):
+                grouped = defaultdict(lambda: {
+                    "Male_Permanent": 0.0,
+                    "Male_Non_Permanent": 0.0,
+                    "Female_Permanent": 0.0,
+                    "Female_Non_Permanent": 0.0,
+                    "Total_Male": 0.0,
+                    "Total_Female": 0.0,
+                })
+
+                for record in data_list:
+                    if fy and record["Financial_Year"] != fy:
+                        continue
+                    if facility_filter and record["Facility"] != facility_filter:
+                        continue
+
+                    if fy and not facility_filter:
+                        key = record["Financial_Year"]
+                    elif not fy and facility_filter:
+                        key = "combined"
+                    elif fy and facility_filter:
+                        key = "filtered"
+                    else:
+                        key = "combined"
+
+                    grouped[key]["Male_Permanent"] += record["Male_Permanent"]
+                    grouped[key]["Male_Non_Permanent"] += record["Male_Non_Permanent"]
+                    grouped[key]["Female_Permanent"] += record["Female_Permanent"]
+                    grouped[key]["Female_Non_Permanent"] += record["Female_Non_Permanent"]
+                    grouped[key]["Total_Male"] += record["Total_Male"]
+                    grouped[key]["Total_Female"] += record["Total_Female"]
+
+                formatted = []
+                for key, group in grouped.items():
+                    entry = {}
+                    if fy and not facility_filter:
+                        entry["Financial_Year"] = key
+                    elif fy and facility_filter:
+                        entry["Financial_Year"] = fy
+                        entry["Facility"] = facility_filter
+                    elif not fy and facility_filter:
+                        entry["Facility"] = facility_filter
+
+                    if not gender and not emp_type:
+                        entry.update({
+                            "Male_Permanent": group["Male_Permanent"],
+                            "Male_Non_Permanent": group["Male_Non_Permanent"],
+                            "Female_Permanent": group["Female_Permanent"],
+                            "Female_Non_Permanent": group["Female_Non_Permanent"],
+                            "Total_Male": group["Total_Male"],
+                            "Total_Female": group["Total_Female"]
+                        })
+                    else:
+                        if gender == "male":
+                            if emp_type == "permanent":
+                                entry["Male_Permanent"] = group["Male_Permanent"]
+                            elif emp_type == "non_permanent":
+                                entry["Male_Non_Permanent"] = group["Male_Non_Permanent"]
+                            else:
+                                entry.update({
+                                    "Male_Permanent": group["Male_Permanent"],
+                                    "Male_Non_Permanent": group["Male_Non_Permanent"],
+                                    "Total_Male": group["Total_Male"]
+                                })
+                        elif gender == "female":
+                            if emp_type == "permanent":
+                                entry["Female_Permanent"] = group["Female_Permanent"]
+                            elif emp_type == "non_permanent":
+                                entry["Female_Non_Permanent"] = group["Female_Non_Permanent"]
+                            else:
+                                entry.update({
+                                    "Female_Permanent": group["Female_Permanent"],
+                                    "Female_Non_Permanent": group["Female_Non_Permanent"],
+                                    "Total_Female": group["Total_Female"]
+                                })
+
+                    formatted.append(entry)
+
+                return formatted
+
+            def calculate_permanent_vs_nonpermanent(emp_data, worker_data):
+                result = {
+                    "Permanent": 0.0,
+                    "Non_Permanent": 0.0
+                }
+
+                for record in emp_data + worker_data:
+                    if fy and record["Financial_Year"] != fy:
+                        continue
+                    if facility_filter and record["Facility"] != facility_filter:
+                        continue
+
+                    result["Permanent"] += record.get("Male_Permanent", 0.0) + record.get("Female_Permanent", 0.0)
+                    result["Non_Permanent"] += record.get("Male_Non_Permanent", 0.0) + record.get("Female_Non_Permanent", 0.0)
+
+                return [
+                    {"Type": "Permanent", "Total": result["Permanent"]},
+                    {"Type": "Non-Permanent", "Total": result["Non_Permanent"]},
+                ]
+
+            total_new_hires = get_new_hires_summary(
+                fy=fy,
+                facility=facility_filter,
+                gender=gender,
+                emp_type=emp_type,
+            )
+            total_wokers_hires = get_worker_new_hires_summary(
+                fy=fy,
+                facility=facility_filter,
+                gender=gender,
+                emp_type=emp_type,
+            )
+            total_employees_hires = get_employess_new_hires_summary(
+                fy=fy,
+                facility=facility_filter,
+                gender=gender,
+                emp_type=emp_type,
+            )
+
+            # Calculate Permanent vs Non-Permanent totals
+            permanent_total = 0.0
+            non_permanent_total = 0.0
+
+            # Combine data from employee and worker data
+            combined_data = employee_data + worker_data
+
+            for record in combined_data:
+                if fy and record["Financial_Year"] != fy:
+                    continue
+                if facility_filter and record["Facility"] != facility_filter:
+                    continue
+
+                permanent_total += record.get("Male_Permanent", 0.0) + record.get("Female_Permanent", 0.0)
+                non_permanent_total += record.get("Male_Non_Permanent", 0.0) + record.get("Female_Non_Permanent", 0.0)
+
+
+
+
+
+
+            response = {
+                "employees": process_data(employee_data, "employees"),
+                "workers": process_data(worker_data, "workers"),
+                "permanent_vs_non_permanent": [
+                    {
+                        "permanent_total": permanent_total,
+                        "non_permanent_total": non_permanent_total
+                    }
+                ],
+                "total_new_hires": total_new_hires,
+                "total_wokers_hires": total_wokers_hires,
+                "total_employees_hires": total_employees_hires
+            }
+
+            return Response(response)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+
+
 
 
 class FemaleDistributionDashboard(APIView):
