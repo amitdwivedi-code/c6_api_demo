@@ -1546,6 +1546,7 @@ class Total_Waste_Generated_Dashboard(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=500)
+        
 class PlantWiseDistributionDashboard(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -1559,72 +1560,28 @@ class PlantWiseDistributionDashboard(APIView):
             employee_data = calculate_total_employees()
             worker_data = calculate_total_workers()
 
-            def group_and_filter(data_list):
-                grouped = defaultdict(lambda: {
-                    "Facility": "",
-                    "Male_Permanent": 0.0,
-                    "Male_Non_Permanent": 0.0,
-                    "Female_Permanent": 0.0,
-                    "Female_Non_Permanent": 0.0,
-                    "Total_Male": 0.0,
-                    "Total_Female": 0.0
-                })
+            def get_combined_plant_wise_distribution(employee_data, worker_data):
+                combined_grouped = defaultdict(float)
 
-                for record in data_list:
+                for record in employee_data + worker_data:
                     if financial_year and record["Financial_Year"] != financial_year:
                         continue
                     if facility_filter and record["Facility"] != facility_filter:
                         continue
 
-                    key = record["Facility"]
-                    group = grouped[key]
-                    group["Facility"] = record["Facility"]
-
-                    group["Male_Permanent"] += record["Male_Permanent"]
-                    group["Male_Non_Permanent"] += record["Male_Non_Permanent"]
-                    group["Female_Permanent"] += record["Female_Permanent"]
-                    group["Female_Non_Permanent"] += record["Female_Non_Permanent"]
-                    group["Total_Male"] += record["Total_Male"]
-                    group["Total_Female"] += record["Total_Female"]
+                    total = record.get("Total_Male", 0.0) + record.get("Total_Female", 0.0)
+                    combined_grouped[record["Facility"]] += total
 
                 results = []
-                for value in grouped.values():
-                    entry = {"Facility": value["Facility"]}
+                total_all = sum(combined_grouped.values())
 
-                    if not gender and not emp_type:
-                        entry.update({
-                            "Male_Permanent": value["Male_Permanent"],
-                            "Male_Non_Permanent": value["Male_Non_Permanent"],
-                            "Female_Permanent": value["Female_Permanent"],
-                            "Female_Non_Permanent": value["Female_Non_Permanent"],
-                            "Total_Male": value["Total_Male"],
-                            "Total_Female": value["Total_Female"],
-                        })
-                    else:
-                        if gender == "male":
-                            if emp_type == "permanent":
-                                entry["Male_Permanent"] = value["Male_Permanent"]
-                            elif emp_type == "non_permanent":
-                                entry["Male_Non_Permanent"] = value["Male_Non_Permanent"]
-                            else:
-                                entry.update({
-                                    "Male_Permanent": value["Male_Permanent"],
-                                    "Male_Non_Permanent": value["Male_Non_Permanent"],
-                                    "Total_Male": value["Total_Male"]
-                                })
-                        elif gender == "female":
-                            if emp_type == "permanent":
-                                entry["Female_Permanent"] = value["Female_Permanent"]
-                            elif emp_type == "non_permanent":
-                                entry["Female_Non_Permanent"] = value["Female_Non_Permanent"]
-                            else:
-                                entry.update({
-                                    "Female_Permanent": value["Female_Permanent"],
-                                    "Female_Non_Permanent": value["Female_Non_Permanent"],
-                                    "Total_Female": value["Total_Female"]
-                                })
-
-                    results.append(entry)
+                for facility, total in combined_grouped.items():
+                    percentage = (total / total_all) * 100 if total_all else 0
+                    results.append({
+                        "Facility": facility,
+                        "Total_Employees": round(total, 2),
+                        "Percentage": f"{percentage:.2f}%"
+                    })
 
                 return results
 
@@ -1673,8 +1630,7 @@ class PlantWiseDistributionDashboard(APIView):
             worker_month_wise = get_monthwise_data_workers(filters)
 
             return Response({
-                "employees": group_and_filter(employee_data),
-                "workers": group_and_filter(worker_data),
+                "plant_wise_distribution": get_combined_plant_wise_distribution(employee_data, worker_data),
                 "month_wise": {
                     "employees": emp_month_wise,
                     "workers": worker_month_wise
