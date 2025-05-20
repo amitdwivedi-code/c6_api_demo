@@ -35,12 +35,10 @@ urlpatterns = [
     path('female_distribution/', views.FemaleDistributionDashboard.as_view(), name='female_distribution'),
     
     ############################################# Traning ################################################
-    path('total_programmes_held_by_facility/', views.TotalProgrammesHeldByFacilityDashboard.as_view(), name='total programmes held by facility'),
-    path('skill_upgradtion_traning/',views.SkillUpgradtionTraningDashborad.as_view(), name='skill upgradtion traning'),
-    path('traning_ingeneral_by_month/',views.TraningIngeneralByMonthDashborad.as_view(), name='traning ingeneral by month'),
-    path('human_rights_training/',views.HumanRightsTrainingDashboard.as_view(), name='human rights training'),
-    path('health_and_safety_traning_by_gender/',views.HealthSafetyTrainingByGender.as_view(), name='health and safety traning by gender'),
-    path('training_ingeneral_by_segment/',views.TrainingIngeneralBySegment.as_view(), name='training ingeneral by segment'),
+    path('skill_upgradtion_and_total_programmes_held_by_facility/',views.SkillAndProgrammeDashboard.as_view(), name='skill upgradtion traning and total programmes held by facility'), 
+    path('health_and_safety_by_gender_and_human_rights_training/',views.CombinedTrainingDashboard.as_view(), name='health and safety traning by gender, human rights training'),
+    path('training_ingeneral_by_segment_and_month/',views.TrainingIngeneralDashboard.as_view(), name='training ingeneral by segment and month'),
+ 
 
 
     
