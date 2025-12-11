@@ -125,6 +125,7 @@ DATABASES = {
             'tls': True,  # use 'tls' instead of 'ssl' for compatibility with some versions
             'authMechanism': 'SCRAM-SHA-1',
             'appName': 'Cluster0',
+            
         } 
     } 
 }
