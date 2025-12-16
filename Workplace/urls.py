@@ -3,7 +3,8 @@ from . import views
 
 urlpatterns = [
     # --------- Workforce url --------- #
-
+    path("attachments/", views.AttachmentView.as_view(), name="attachment-list-create"),
+    path("attachments/<int:id>/", views.AttachmentView.as_view(), name="attachment-delete"),
     path('workforce/employees/genderlist/', views.GenderList_View.as_view(), name='Gender_List'),
     path('workforce/employees/typelist/', views.TypeList_View.as_view(), name='Gender_List'),
 
