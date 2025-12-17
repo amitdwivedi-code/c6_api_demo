@@ -11,16 +11,19 @@ class RecommendationSerializer(serializers.ModelSerializer):
             'Financial_Year': {'required': True, 'allow_blank': False},
         }
         
-
 class SOPDocumentSerializer(serializers.ModelSerializer):
+    id = serializers.SerializerMethodField()
+
     class Meta:
         model = SOPDocument
         fields = [
-            # 'id',
+            'id',
             'name',
             'description',
             'file',
             'uploaded_by',
             'updated_at'
         ]
-        read_only_fields = ['id', 'uploaded_by', 'updated_at']
+
+    def get_id(self, obj):
+        return str(obj._id)

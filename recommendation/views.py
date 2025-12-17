@@ -11,6 +11,7 @@ from Activity_Log.serializers import ActivityLogSerializer
 from .models import RecommendationModel, SOPDocument
 from .serializers import RecommendationSerializer, SOPDocumentSerializer
 import os
+from bson import ObjectId
 
 """
 API's for all tables recommendation and comments
@@ -164,10 +165,19 @@ class SOPDocumentUploadView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-    
     def delete(self, request, id):
         try:
-            sop = SOPDocument.objects.filter(id=id).first()
+            # 🔹 Validate ObjectId
+            try:
+                object_id = ObjectId(id)
+            except Exception:
+                return Response(
+                    {"error": "Invalid SOP document ID"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # 🔹 Fetch document
+            sop = SOPDocument.objects.filter(pk=object_id).first()
 
             if not sop:
                 return Response(
@@ -175,16 +185,53 @@ class SOPDocumentUploadView(APIView):
                     status=status.HTTP_404_NOT_FOUND
                 )
 
-            # Delete physical file
-            if sop.file and os.path.isfile(sop.file.path):
-                os.remove(sop.file.path)
+            # 🔹 Delete physical file
+            if sop.file and hasattr(sop.file, 'path'):
+                if os.path.exists(sop.file.path):
+                    os.remove(sop.file.path)
 
+            # 🔹 Delete MongoDB document
             sop.delete()
 
             return Response(
-                {"message": "document deleted successfully"},
+                {"message": "Document deleted successfully"},
                 status=status.HTTP_200_OK
             )
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def get(self, request, id=None):
+        try:
+            # 🔹 GET single SOP
+            if id:
+                try:
+                    object_id = ObjectId(id)
+                except Exception:
+                    return Response(
+                        {"error": "Invalid SOP document ID"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+                sop = SOPDocument.objects.filter(pk=object_id).first()
+
+                if not sop:
+                    return Response(
+                        {"error": "SOP document not found"},
+                        status=status.HTTP_404_NOT_FOUND
+                    )
+
+                serializer = SOPDocumentSerializer(sop)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+
+            # 🔹 GET all SOPs
+            sops = SOPDocument.objects.all().order_by('-updated_at')
+            serializer = SOPDocumentSerializer(sops, many=True)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
         except Exception as e:
             return Response(

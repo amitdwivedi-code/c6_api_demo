@@ -1,5 +1,7 @@
 from django.db import models
 
+from djongo import models
+
 # Create your models here.
 
 class RecommendationModel(models.Model):
@@ -8,9 +10,8 @@ class RecommendationModel(models.Model):
     recommendation_key = models.CharField(max_length=256, blank=True, null=True)
     recommendation_value = models.TextField(blank=True, null=True)
 
-
 class SOPDocument(models.Model):
-    # id = models.AutoField(primary_key=True)
+    _id = models.ObjectIdField(primary_key=True)
     name = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     file = models.FileField(upload_to='sop_documents/', null=False, blank=False)
