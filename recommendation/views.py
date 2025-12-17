@@ -8,8 +8,9 @@ from rest_framework.exceptions import APIException
 from django.db.models import Max, Sum
 from Activity_Log.serializers import ActivityLogSerializer
 
-from .models import RecommendationModel
-from .serializers import RecommendationSerializer
+from .models import RecommendationModel, SOPDocument
+from .serializers import RecommendationSerializer, SOPDocumentSerializer
+import os
 
 """
 API's for all tables recommendation and comments
@@ -130,3 +131,63 @@ class RecommendationView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
    
+
+
+
+class SOPDocumentUploadView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            serializer = SOPDocumentSerializer(data=request.data)
+
+            if serializer.is_valid():
+                serializer.save(
+                    uploaded_by=request.user.id
+                )
+                return Response(
+                    {
+                        "message": "document uploaded successfully",
+                        "data": serializer.data
+                    },
+                    status=status.HTTP_201_CREATED
+                )
+
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    
+    def delete(self, request, id):
+        try:
+            sop = SOPDocument.objects.filter(id=id).first()
+
+            if not sop:
+                return Response(
+                    {"error": "SOP document not found"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            # Delete physical file
+            if sop.file and os.path.isfile(sop.file.path):
+                os.remove(sop.file.path)
+
+            sop.delete()
+
+            return Response(
+                {"message": "document deleted successfully"},
+                status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

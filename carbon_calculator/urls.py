@@ -46,30 +46,6 @@ urlpatterns = [
 
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'), 
     path('docs/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-   
-   
-    
-    # path('fuel/', include('Fuel.urls')),
-    # path('environment/principle_6_report/', include('Principle_6_Report.urls')),
-    # path('environment/emissions/', include('Emissions.urls')),
-    # path('transport/', include('Transport.urls')),
-    
-    
-    # path('environment/life_cycle/', include('Life_Cycle.urls')),
-    # path('environment/water/',include('Water.urls')),
-    # path('environment/waste/',include('Waste.urls')),
-    # path('environment/energy/',include('Energy.urls')),
-    # path('workplace/workforce/',include('WorkForce.urls')),
-    # path('workplace/training/',include('Training.urls')),
-    # path('workplace/grievances/',include('Grievances.urls')),
-    # path('workplace/health_and_safety/',include('Health_And_Safety.urls')),
-    # path('workplace/grievances/',include('Grievances.urls')),
-    # path('workplace/policies_and_penalties/',include('Policies_and_Penalties.urls')),
-    # path('environment/sustainability/',include('Sustainability.urls')),
-    # path('admin/', admin.site.urls),
-    # path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    # path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-     
     path('api/', include('recommendation.urls')),
     
 
