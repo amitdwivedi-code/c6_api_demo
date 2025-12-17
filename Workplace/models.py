@@ -887,3 +887,20 @@ class Disciplinary_Action_Against_For_curruption(models.Model):
 
     class Meta:
        app_label = "Workplace"    
+
+
+
+class Attachment(models.Model):
+    id = models.IntegerField(primary_key=True)
+    
+    parent_type = models.CharField(
+        max_length=100,
+        choices=[("Employees", "Employees"), ("Workers", "Workers")]
+    )
+    parent_id = models.IntegerField()
+
+    file = models.FileField(upload_to="attachments/")
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        app_label = "Workplace"

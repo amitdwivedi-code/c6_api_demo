@@ -7,9 +7,17 @@ Serializer for Workforce
 ****************************************************************************
 """
 class EmployeesSerializer(serializers.ModelSerializer):
+    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Employees
         fields = '__all__'
+
+    def get_attachments(self, obj):
+        attachments = Attachment.objects.filter(
+            parent_type="Employees",
+            parent_id=obj.id
+        )
+        return AttachmentSerializer(attachments, many=True).data
 
 class Differently_Abled_EmployeesSerializer(serializers.ModelSerializer):
     class Meta:
@@ -17,9 +25,18 @@ class Differently_Abled_EmployeesSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class WorkersSerializer(serializers.ModelSerializer):
+    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Workers
         fields = '__all__'
+        
+    def get_attachments(self, obj):
+        attachments = Attachment.objects.filter(
+            parent_type="Employees",
+            parent_id=obj.id
+        )
+        return AttachmentSerializer(attachments, many=True).data
+
 
 class Differently_Abled_WorkersSerializer(serializers.ModelSerializer):
     class Meta:
@@ -330,3 +347,8 @@ class Disciplinary_Action_Against_For_curruptionSerializer(serializers.ModelSeri
         model = Disciplinary_Action_Against_For_curruption
         fields = '__all__'
         
+
+class AttachmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Attachment
+        fields = "__all__"

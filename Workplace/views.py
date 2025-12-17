@@ -12,7 +12,7 @@ from rest_framework.exceptions import ValidationError
 
 from Activity_Log.models import Activity_Log
 from Activity_Log.serializers import ActivityLogSerializer
-
+from django.db import transaction
 
 from .choices import *
 from .models import *
@@ -203,10 +203,18 @@ class Employees_View(APIView):
 
     def delete(self, request, id):
         try:
-            employee = Employees.objects.get(id=id)
-            # financial_year = employee.Financial_Year
-            # facility = employee.Facility
-            employee.delete()
+            with transaction.atomic():  # Begin transaction
+                employee = Employees.objects.get(id=id)
+
+                # Delete related attachments
+                attachments = Attachment.objects.filter(parent_type="Employees", parent_id=employee.id)
+                for attachment in attachments:
+                    if attachment.file:
+                        attachment.file.delete(save=False)
+                    attachment.delete()
+
+                # Delete employee
+                employee.delete()
 
             total_employees = calculate_total_employees()
             EmployeeSummary.objects.all().delete()
@@ -481,8 +489,18 @@ class Workers_View(APIView):
 
     def delete(self, request, id):
         try:
-            employee = Workers.objects.get(id=id)
-            employee.delete()
+            with transaction.atomic():  # Begin transaction
+                employee = Workers.objects.get(id=id)
+
+                # Delete related attachments
+                attachments = Attachment.objects.filter(parent_type="Workers", parent_id=employee.id)
+                for attachment in attachments:
+                    if attachment.file:
+                        attachment.file.delete(save=False)
+                    attachment.delete()
+
+                # Delete employee
+                employee.delete()
 
             total_workers = calculate_total_workers()
             WorkerSummary.objects.all().delete()
@@ -7217,3 +7235,90 @@ class Disciplinary_Action_Against_For_curruption_View(APIView):
         except Exception as e:
             logger.error(f"Exception: {e}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)   
+
+
+
+
+
+class AttachmentView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        parent_type = request.query_params.get("parent_type")
+        parent_id = request.query_params.get("parent_id")
+
+        if not parent_type or not parent_id:
+            return Response(
+                {"error": "parent_type and parent_id are required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        attachments = Attachment.objects.filter(
+            parent_type=parent_type,
+            parent_id=int(parent_id)
+        )
+
+        serializer = AttachmentSerializer(attachments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        parent_type = request.data.get("parent_type")
+        parent_id = request.data.get("parent_id")
+
+        if not parent_type or not parent_id:
+            return Response(
+                {"error": "parent_type and parent_id are required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        files = request.FILES.getlist("file")
+        if not files:
+            return Response(
+                {"error": "No files provided"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        created = []
+
+        for file in files:
+            # Auto increment ID
+            if Attachment.objects.count() == 0:
+                attachment_id = 1
+            else:
+                attachment_id = (
+                    Attachment.objects.aggregate(Max("id"))["id__max"] + 1
+                )
+
+            attachment = Attachment.objects.create(
+                id=attachment_id,
+                parent_type=parent_type,
+                parent_id=int(parent_id),
+                file=file
+            )
+
+            created.append(AttachmentSerializer(attachment).data)
+
+        return Response(
+            {
+                "success": f"{len(created)} files uploaded",
+                "attachments": created
+            },
+            status=status.HTTP_201_CREATED
+        )
+
+
+    def delete(self, request, id):
+        try:
+            attachment = Attachment.objects.get(id=id)
+            attachment.file.delete(save=False)  # delete file from storage
+            attachment.delete()
+            return Response(
+                {"success": "Attachment deleted"},
+                status=status.HTTP_200_OK
+            )
+        except Attachment.DoesNotExist:
+            return Response(
+                {"error": "Attachment not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
