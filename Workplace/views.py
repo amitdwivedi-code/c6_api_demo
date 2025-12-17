@@ -489,9 +489,6 @@ class Workers_View(APIView):
 
     def delete(self, request, id):
         try:
-            # employee = Workers.objects.get(id=id)
-            # employee.delete()
-
             with transaction.atomic():  # Begin transaction
                 employee = Workers.objects.get(id=id)
 
