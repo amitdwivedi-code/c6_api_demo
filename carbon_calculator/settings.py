@@ -47,10 +47,10 @@ env.read_env(BASE_DIR / '.env')
 SECRET_KEY = '6-lndcev^5l!*%6@hg&zk&g*@h7fxnrwn--#e4_-dh0g(8s^@x'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool('DEBUG', True)
+DEBUG = env.bool('DEBUG', False)
 
-#ALLOWED_HOSTS = []
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
+ALLOWED_HOSTS = ["*"]
+# ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=[])
 
 
@@ -122,10 +122,10 @@ DATABASES = {
         'ENFORCE_SCHEMA': False,  # Optional, helps avoid issues with schema checks
         'CLIENT': {
             'host': env.str('MONGO_DATABASE_URL'),
-            # 'SSL': False,
-            'tls': True,  # use 'tls' instead of 'ssl' for compatibility with some versions
-            'authMechanism': 'SCRAM-SHA-1',
-            'appName': 'Cluster0'
+            'SSL': False,
+            # 'tls': True,  # use 'tls' instead of 'ssl' for compatibility with some versions
+            # 'authMechanism': 'SCRAM-SHA-1',
+            # 'appName': 'Cluster0'
         } 
     } 
 }

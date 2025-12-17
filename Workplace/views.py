@@ -347,20 +347,43 @@ class Differently_Abled_Employees_View(APIView):
 
     def delete(self, request, id):
         try:
-            employee = Differently_Abled_Employees.objects.get(id=id)
-            employee.delete()
-
-            activity_log = {
+            with transaction.atomic():  # Begin transaction
+                employee = Differently_Abled_Employees.objects.get(id=id)
+                # Delete related attachments
+                attachments = Attachment.objects.filter(parent_type="Differently_Abled_Employees", parent_id=employee.id)
+                for attachment in attachments:
+                    if attachment.file:
+                        attachment.file.delete(save=False)
+                    attachment.delete()
+                # Delete employee
+                employee.delete()
+                activity_log = {
                     "Name": request.user.firstname + " " + request.user.lastname,
                     "Activity": "Deleted information in table - Differently_Abled_Employees"}
-            activity_log_serializer = ActivityLogSerializer(data=activity_log)
-            if activity_log_serializer.is_valid():
-                activity_log_serializer.save()
+                activity_log_serializer = ActivityLogSerializer(data=activity_log)
+                if activity_log_serializer.is_valid():
+                    activity_log_serializer.save()
 
-            return Response({'success': 'Data deleted successfully.'}, status=status.HTTP_200_OK)
+                return Response({'success': 'Data deleted successfully.'}, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error(f"Exception: {e}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+        # try:
+        #     employee = Differently_Abled_Employees.objects.get(id=id)
+        #     employee.delete()
+
+        #     activity_log = {
+        #             "Name": request.user.firstname + " " + request.user.lastname,
+        #             "Activity": "Deleted information in table - Differently_Abled_Employees"}
+        #     activity_log_serializer = ActivityLogSerializer(data=activity_log)
+        #     if activity_log_serializer.is_valid():
+        #         activity_log_serializer.save()
+
+        #     return Response({'success': 'Data deleted successfully.'}, status=status.HTTP_200_OK)
+        # except Exception as e:
+        #     logger.error(f"Exception: {e}")
+        #     return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
 class Workers_View(APIView):
@@ -642,8 +665,16 @@ class DifferentlyAbledWorkersView(APIView):
 
     def delete(self, request, id):
         try:
-            employee = Differently_Abled_Workers.objects.get(id=id)
-            employee.delete()
+            with transaction.atomic():  # Begin transaction
+                employee = Differently_Abled_Workers.objects.get(id=id)
+                # Delete related attachments
+                attachments = Attachment.objects.filter(parent_type="Differently_Abled_Workers", parent_id=employee.id)
+                for attachment in attachments:
+                    if attachment.file:
+                        attachment.file.delete(save=False)
+                    attachment.delete()
+                # Delete employee
+                employee.delete()
             activity_log = {
                     "Name": request.user.firstname + " " + request.user.lastname,
                     "Activity": "Deleted information in table - Differently_Abled_Workers"}
@@ -766,9 +797,16 @@ class BoardOfDirectorsView(APIView):
 
     def delete(self, request, id):
         try:
-            director = Management_Board_of_Directors.objects.get(id=id)
-            director.delete()
-
+            with transaction.atomic():  # Begin transaction
+                employee = Management_Board_of_Directors.objects.get(id=id)
+                # Delete related attachments
+                attachments = Attachment.objects.filter(parent_type="Management", parent_id=employee.id)
+                for attachment in attachments:
+                    if attachment.file:
+                        attachment.file.delete(save=False)
+                    attachment.delete()
+                # Delete employee
+                employee.delete()
             activity_log = {
                     "Name": request.user.firstname + " " + request.user.lastname,
                     "Activity": "Deleted information in table - Management_Board_of_Directors"}
@@ -888,8 +926,16 @@ class KeyManagementPersonnelView(APIView):
 
     def delete(self, request, id):
         try:
-            personnel = Key_Management_Personnel.objects.get(id=id)
-            personnel.delete()
+            with transaction.atomic():  # Begin transaction
+                employee = Key_Management_Personnel.objects.get(id=id)
+                # Delete related attachments
+                attachments = Attachment.objects.filter(parent_type="Key_Management_Personel", parent_id=employee.id)
+                for attachment in attachments:
+                    if attachment.file:
+                        attachment.file.delete(save=False)
+                    attachment.delete()
+                # Delete employee
+                employee.delete()
             activity_log = {
                     "Name": request.user.firstname + " " + request.user.lastname,
                     "Activity": "Deleted information in table - Key_Management_Personnel"}
@@ -2005,9 +2051,16 @@ class EmployeeTurnoverRateView(APIView):
 
     def delete(self, request, id):
         try:
-            employee = Employee_Turnover_Rate.objects.get(id=id)
-            employee.delete()
-
+            with transaction.atomic():  # Begin transaction
+                employee = Employee_Turnover_Rate.objects.get(id=id)
+                # Delete related attachments
+                attachments = Attachment.objects.filter(parent_type="Employee_Turnover_Rate", parent_id=employee.id)
+                for attachment in attachments:
+                    if attachment.file:
+                        attachment.file.delete(save=False)
+                    attachment.delete()
+                # Delete employee
+                employee.delete()
             activity_log = {
                     "Name": request.user.firstname + " " + request.user.lastname,
                     "Activity": "Deleted information in table - Employee_Turnover_Rate"}
@@ -2151,8 +2204,16 @@ class WorkersTurnoverRateView(APIView):
 
     def delete(self, request, id):
         try:
-            employee = Workers_Turnover_Rate.objects.get(id=id)
-            employee.delete()
+            with transaction.atomic():  # Begin transaction
+                employee = Workers_Turnover_Rate.objects.get(id=id)
+                # Delete related attachments
+                attachments = Attachment.objects.filter(parent_type="Workers_Turnover_Rate", parent_id=employee.id)
+                for attachment in attachments:
+                    if attachment.file:
+                        attachment.file.delete(save=False)
+                    attachment.delete()
+                # Delete employee
+                employee.delete()
             activity_log = {
                     "Name": request.user.firstname + " " + request.user.lastname,
                     "Activity": "Deleted information in table - Workers_Turnover_Rate"}
@@ -2556,8 +2617,16 @@ class Ingeneral_View(APIView):
             id= kwargs.get('id')
             if id is not None:
                 try:
-                    assessment_by_external_agency = Ingeneral.objects.get(id=id)
-                    assessment_by_external_agency.delete()
+                    with transaction.atomic():  # Begin transaction
+                        assessment_by_external_agency = Ingeneral.objects.get(id=id)
+                        # Delete related attachments
+                        attachments = Attachment.objects.filter(parent_type="Training_Manhours", parent_id=assessment_by_external_agency.id)
+                        for attachment in attachments:
+                            if attachment.file:
+                                attachment.file.delete(save=False)
+                            attachment.delete()
+                        # Delete employee
+                        assessment_by_external_agency.delete()
 
                     activity_log = {
                         "Name": request.user.firstname + " " + request.user.lastname,
@@ -4263,8 +4332,16 @@ class Lost_Time_Injury_Frequency_Rate_View(APIView):
             id= kwargs.get('id')
             if id is not None:
                 try:
-                    employee_and_worker_data = Lost_Time_Injury_Frequency_Rate.objects.get(id=id)
-                    employee_and_worker_data.delete()
+                    with transaction.atomic():  # Begin transaction
+                        employee_and_worker_data = Lost_Time_Injury_Frequency_Rate.objects.get(id=id)
+                        # Delete related attachments
+                        attachments = Attachment.objects.filter(parent_type="Lost_Time_Injury_Frequency_Rate", parent_id=employee_and_worker_data.id)
+                        for attachment in attachments:
+                            if attachment.file:
+                                attachment.file.delete(save=False)
+                            attachment.delete()
+                        # Delete employee
+                        employee_and_worker_data.delete()
                     activity_log = {
                     "Name": request.user.firstname + " " + request.user.lastname,
                     "Activity": "Deleted information in table - Lost_Time_Injury_Frequency_Rate"}
@@ -4437,8 +4514,16 @@ class Total_Work_Related_Injuries_View(APIView):
             id = kwargs.get('id')
             if id is not None:
                 try:
-                    injuries_data = Total_Work_Related_Injuries.objects.get(id=id)
-                    injuries_data.delete()
+                    with transaction.atomic():  # Begin transaction
+                        injuries_data = Total_Work_Related_Injuries.objects.get(id=id)
+                        # Delete related attachments
+                        attachments = Attachment.objects.filter(parent_type="Total_Work_Related_Injuries", parent_id=injuries_data.id)
+                        for attachment in attachments:
+                            if attachment.file:
+                                attachment.file.delete(save=False)
+                            attachment.delete()
+                        # Delete employee
+                        injuries_data.delete()
                     activity_log = {
                     "Name": request.user.firstname + " " + request.user.lastname,
                     "Activity": "Deleted information in table - Total_Work_Related_Injuries"}
@@ -4621,8 +4706,16 @@ class No_Of_Fatalities_View(APIView):
             id = kwargs.get('id')
             if id is not None:
                 try:
-                    fatalities_data = No_Of_Fatalities.objects.get(id=id)
-                    fatalities_data.delete()
+                    with transaction.atomic():  # Begin transaction
+                        fatalities_data = No_Of_Fatalities.objects.get(id=id)
+                        # Delete related attachments
+                        attachments = Attachment.objects.filter(parent_type="Fatalities", parent_id=fatalities_data.id)
+                        for attachment in attachments:
+                            if attachment.file:
+                                attachment.file.delete(save=False)
+                            attachment.delete()
+                        # Delete employee
+                        fatalities_data.delete()
                     activity_log = {
                     "Name": request.user.firstname + " " + request.user.lastname,
                     "Activity": "Deleted information in table - No_Of_Fatalities"}
@@ -4805,8 +4898,17 @@ class Injury_Or_Ill_Health_View(APIView):
             id = kwargs.get('id')
             if id is not None:
                 try:
-                    injury_ill_health_data = Injury_Or_Ill_Health.objects.get(id=id)
-                    injury_ill_health_data.delete()
+                    with transaction.atomic():  # Begin transaction
+                        injury_ill_health_data = Injury_Or_Ill_Health.objects.get(id=id)
+                        # Delete related attachments
+                        attachments = Attachment.objects.filter(parent_type="Injury_ILL_Health", parent_id=injury_ill_health_data.id)
+                        for attachment in attachments:
+                            if attachment.file:
+                                attachment.file.delete(save=False)
+                            attachment.delete()
+                        # Delete employee
+                        injury_ill_health_data.delete()
+                
                     activity_log = {
                     "Name": request.user.firstname + " " + request.user.lastname,
                     "Activity": "Deleted information in table - Injury_Or_Ill_Health"}

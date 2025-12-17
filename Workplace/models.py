@@ -895,7 +895,10 @@ class Attachment(models.Model):
     
     parent_type = models.CharField(
         max_length=100,
-        choices=[("Employees", "Employees"), ("Workers", "Workers")]
+        choices=[("Employees", "Employees"), ("Workers", "Workers"), ("Differently_Abled_Employees", "Differently_Abled_Employees"), ("Employee_Turnover_Rate", "Employee_Turnover_Rate"),
+                 ("Differently_Abled_Workers", "Differently_Abled_Workers"), ("Workers_Turnover_Rate", "Workers_Turnover_Rate"),
+                 ("Management", "Management"), ("Key_Management_Personel", "Key_Management_Personel"), ("Training_Manhours", "Training_Manhours"),
+                 ("Lost_Time_Injury_Frequency_Rate", "Lost_Time_Injury_Frequency_Rate"), ("Total_Work_Related_Injuries", "Total_Work_Related_Injuries"), ("Fatalities", "Fatalities"), ("Injury_ILL_Health", "Injury_ILL_Health"),],
     )
     parent_id = models.IntegerField()
 
