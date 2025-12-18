@@ -18,7 +18,7 @@ from .models import *
 from .utils  import *
 from .serializers import *
 
-
+from django.db import transaction
 from django.db.models import Max, Sum
 
 from decimal import Decimal
@@ -423,76 +423,104 @@ class Electricity_Consumption_mwh_View(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)            
         
-
     def delete(self, request, **kwargs):
         try:
-            id= kwargs.get('id')
-            if id is not None:
-                try:
-                    electricity_consumption_mwh = Electricity_Consumption_mwh.objects.get(id=id)
-                    electricity_consumption_mwh.delete()
+            id = kwargs.get("id")
+            if not id:
+                return Response(
+                    {"error": "ID is required"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-                    electricity_consumption_GJ = Electricity_Consumption_GJ.objects.get(id=id)
-                    electricity_consumption_GJ.delete()
+            attachments_files = []  # store files for later deletion
 
-                    energy_intensity = calculate_energy_intensity()
-                    Energy_Intensity.objects.all().delete()
-                    for i in energy_intensity:
-                        serializer2 = EnergyIntensitySerializer(data=i)
-                        if serializer2.is_valid():
-                            serializer2.save()
+            with transaction.atomic():  # 🔐 FULL TRANSACTION
+                employee = Electricity_Consumption_mwh.objects.get(id=id)
 
-                    energy_intensity_for_production = calculate_energy_intensity_for_production()
-                    Energy_Intensity_for_Production.objects.all().delete()
-                    for i in energy_intensity_for_production:
-                        serializer3 = EnergyIntensityforProductionSerializer(data=i)
-                        if serializer3.is_valid():
-                            serializer3.save()
+                attachments = Attachment.objects.filter(
+                    parent_type="Electricity_Consumption_mwh",
+                    parent_id=employee.id
+                )
+
+                # store file paths (do NOT delete files yet)
+                for attachment in attachments:
+                    if attachment.file:
+                        attachments_files.append(attachment.file)
+
+                # delete attachment DB rows
+                attachments.delete()
+
+                # delete main record
+                employee.delete()
+
+                # delete related GJ safely
+                Electricity_Consumption_GJ.objects.filter(id=id).delete()
+
+                # ===== EXISTING LOGIC (UNCHANGED) =====
+                Energy_Intensity.objects.all().delete()
+                for i in calculate_energy_intensity():
+                    serializer2 = EnergyIntensitySerializer(data=i)
+                    serializer2.is_valid(raise_exception=True)
+                    serializer2.save()
+
+                Energy_Intensity_for_Production.objects.all().delete()
+                for i in calculate_energy_intensity_for_production():
+                    serializer3 = EnergyIntensityforProductionSerializer(data=i)
+                    serializer3.is_valid(raise_exception=True)
+                    serializer3.save()
+
+                Scope2_Emissions_by_Facilities.objects.all().delete()
+                for i in calculate_scope2_emission_by_facilities():
+                    serializer4 = Scope2EmissionsbyFacilitiesSerializer(data=i)
+                    serializer4.is_valid(raise_exception=True)
+                    serializer4.save()
+
+                Scope2_Emissions_by_Fuel.objects.all().delete()
+                for i in calculate_scope2_emissions_by_fuel():
+                    serializer5 = Scope2EmissionsbyFuelSerializer(data=i)
+                    serializer5.is_valid(raise_exception=True)
+                    serializer5.save()
+
+                Scope2_Emissions_by_GHG_Type.objects.all().delete()
+                for i in calculate_scope2_emissions_by_ghg_type():
+                    serializer6 = Scope2EmissionsbyGHGTypeSerializer(data=i)
+                    serializer6.is_valid(raise_exception=True)
+                    serializer6.save()
+
+                Scope2_Intensity.objects.all().delete()
+                for i in calculate_scope_2_intensity():
+                    serializer7 = Scope2IntensitySerializer(data=i)
+                    serializer7.is_valid(raise_exception=True)
+                    serializer7.save()
+
+                activity_log = {
+                    "Name": request.user.firstname + " " + request.user.lastname,
+                    "Activity": "Deleted information in table - Electricity Consumption (mWh)",
+                }
+                activity_log_serializer = ActivityLogSerializer(data=activity_log)
+                activity_log_serializer.is_valid(raise_exception=True)
+                activity_log_serializer.save()
 
 
-                    scope2_emission_by_facilities = calculate_scope2_emission_by_facilities()
-                    Scope2_Emissions_by_Facilities.objects.all().delete()
-                    for i in scope2_emission_by_facilities:
-                        serializer4 = Scope2EmissionsbyFacilitiesSerializer(data=i)
-                        if serializer4.is_valid():
-                            serializer4.save()
+            #  DELETE FILES ONLY AFTER SUCCESSFUL COMMIT
+            for file in attachments_files:
+                file.delete(save=False)
 
-                    scope2_emission_by_fuel = calculate_scope2_emissions_by_fuel()
-                    Scope2_Emissions_by_Fuel.objects.all().delete()
-                    for i in scope2_emission_by_fuel:
-                        serializer5 = Scope2EmissionsbyFuelSerializer(data=i)
-                        if serializer5.is_valid():
-                            serializer5.save()
+            return Response(
+                {"success": "Data deleted successfully"},
+                status=status.HTTP_204_NO_CONTENT
+            )
 
-                    scope2_emission_by_ghg_type = calculate_scope2_emissions_by_ghg_type()
-                    Scope2_Emissions_by_GHG_Type.objects.all().delete()
-                    for i in scope2_emission_by_ghg_type:
-                        serializer6 = Scope2EmissionsbyGHGTypeSerializer(data=i)
-                        if serializer6.is_valid():
-                            serializer6.save()
-
-
-                    scope2_intensity = calculate_scope_2_intensity()
-                    Scope2_Intensity.objects.all().delete()
-                    for i in scope2_intensity:
-                        serializer7 = Scope2IntensitySerializer(data=i)
-                        if serializer7.is_valid():
-                            serializer7.save()
-
-                    activity_log = {
-                    "Name": request.user.firstname + " " + request.user.lastname, 
-                    "Activity": "Deleted information in table - Electricity Consumption (mWh)"}
-                                    
-                    activity_log_serializer = ActivityLogSerializer(data=activity_log)
-                    if activity_log_serializer.is_valid():
-                        activity_log_serializer.save()
-
-                    return Response({'success':'Data deleted successfully'},status=status.HTTP_204_NO_CONTENT)
-                except Electricity_Consumption_mwh.DoesNotExist:
-                    return Response({'error':'Record not found'},status=status.HTTP_404_NOT_FOUND)
+        except Electricity_Consumption_mwh.DoesNotExist:
+            return Response(
+                {"error": "Record not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
         except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
-        
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class Electricity_Consumption_mwh_Filter_View(APIView):
