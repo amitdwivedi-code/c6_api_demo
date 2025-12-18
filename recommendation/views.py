@@ -130,3 +130,155 @@ class RecommendationView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
    
+
+
+
+class SOPDocumentUploadView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            serializer = SOPDocumentSerializer(data=request.data)
+
+            if serializer.is_valid():
+                serializer.save(
+                    uploaded_by=request.user.id
+                )
+                return Response(
+                    {
+                        "message": "document uploaded successfully",
+                        "data": serializer.data
+                    },
+                    status=status.HTTP_201_CREATED
+                )
+
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def delete(self, request, id):
+        try:
+            # 🔹 Validate ObjectId
+            try:
+                object_id = ObjectId(id)
+            except Exception:
+                return Response(
+                    {"error": "Invalid SOP document ID"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # 🔹 Fetch document
+            sop = SOPDocument.objects.filter(pk=object_id).first()
+
+            if not sop:
+                return Response(
+                    {"error": "SOP document not found"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            # 🔹 Delete physical file
+            if sop.file and hasattr(sop.file, 'path'):
+                if os.path.exists(sop.file.path):
+                    os.remove(sop.file.path)
+
+            # 🔹 Delete MongoDB document
+            sop.delete()
+
+            return Response(
+                {"message": "Document deleted successfully"},
+                status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def patch(self, request, id):
+        try:
+            try:
+                object_id = ObjectId(id)
+            except Exception:
+                return Response({"error": "Invalid SOP document ID"}, status=status.HTTP_400_BAD_REQUEST)
+
+            sop = SOPDocument.objects.filter(pk=object_id).first()
+            if not sop:
+                return Response(
+                    {"error": "SOP document not found"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            data = {
+                "name": request.data.get("name", sop.name),
+                "description": request.data.get("description", sop.description)
+            }
+
+            serializer = SOPDocumentSerializer(
+                sop,
+                data=data,
+                partial=True
+            )
+
+            if serializer.is_valid():
+                serializer.save()
+                return Response(
+                    {
+                        "message": "Document updated successfully",
+                        "data": serializer.data
+                    },
+                    status=status.HTTP_200_OK
+                )
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+
+
+    def get(self, request, id=None):
+        try:
+            # 🔹 GET single SOP
+            if id:
+                try:
+                    object_id = ObjectId(id)
+                except Exception:
+                    return Response(
+                        {"error": "Invalid SOP document ID"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+                sop = SOPDocument.objects.filter(pk=object_id).first()
+
+                if not sop:
+                    return Response(
+                        {"error": "SOP document not found"},
+                        status=status.HTTP_404_NOT_FOUND
+                    )
+
+                serializer = SOPDocumentSerializer(sop)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+
+            # 🔹 GET all SOPs
+            sops = SOPDocument.objects.all().order_by('-updated_at')
+            serializer = SOPDocumentSerializer(sops, many=True)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
