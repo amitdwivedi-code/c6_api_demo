@@ -1,3 +1,5 @@
+from Workplace.models import Attachment
+from Workplace.serializers import AttachmentSerializer
 from rest_framework import serializers
 from .models import *
 
@@ -44,10 +46,18 @@ class FuelConsumptionOnsiteCombustionGJSerializer(serializers.ModelSerializer):
 
 
 class FuelConsumptionOnsiteVehiclesGeneralSerializer(serializers.ModelSerializer):
+    attachments = serializers.SerializerMethodField()
+
     class Meta:
         model = Fuel_Consumption_Onsite_Vehicles_General
         fields = '__all__'
-
+        
+    def get_attachments(self, obj):
+        attachments = Attachment.objects.filter(
+            parent_type="onsite_vehicle",
+            parent_id=obj.id
+        )
+        return AttachmentSerializer(attachments, many=True).data
 
 
 class FuelConsumptionOnsiteVehiclesGJSerializer(serializers.ModelSerializer):
@@ -58,23 +68,47 @@ class FuelConsumptionOnsiteVehiclesGJSerializer(serializers.ModelSerializer):
 
 
 class InboundLogisticsSerializer(serializers.ModelSerializer):
+    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Inbound_Logistics
         fields = '__all__'
+    
+    def get_attachments(self, obj):
+        attachments = Attachment.objects.filter(
+            parent_type="in_bound",
+            parent_id=obj.id
+        )
+        return AttachmentSerializer(attachments, many=True).data
+    
 
 
 class OutboundLogisticsSerializer(serializers.ModelSerializer):
+    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Outbound_Logistics
         fields = '__all__'
+        
+    def get_attachments(self, obj):
+        attachments = Attachment.objects.filter(
+            parent_type="out_bound",
+            parent_id=obj.id
+        )
+        return AttachmentSerializer(attachments, many=True).data
 
 
 
 class BusinessTravelSerializer(serializers.ModelSerializer):
+    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Business_Travel
         fields = '__all__'
 
+    def get_attachments(self, obj):
+        attachments = Attachment.objects.filter(
+            parent_type="business_travel",
+            parent_id=obj.id
+        )
+        return AttachmentSerializer(attachments, many=True).data
 
 
 class EmployeeCommutingSerializer(serializers.ModelSerializer):
@@ -98,17 +132,33 @@ class EnergyIntensityforProductionSerializer(serializers.ModelSerializer):
 
 
 class EnergyConsumptionOtherSourcesSerializer(serializers.ModelSerializer):
+    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Energy_Consumption_Other_Sources
         fields = '__all__'
+        
+    def get_attachments(self, obj):
+        attachments = Attachment.objects.filter(
+            parent_type="energy_consumption",
+            parent_id=obj.id
+        )
+        return AttachmentSerializer(attachments, many=True).data
+
 
 
 
 class ProcessEmissionsSerializer(serializers.ModelSerializer):
+    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Process_Emissions
         fields = '__all__'
 
+    def get_attachments(self, obj):
+        attachments = Attachment.objects.filter(
+            parent_type="process_emissions",
+            parent_id=obj.id
+        )
+        return AttachmentSerializer(attachments, many=True).data
 
 
 class RefrigerantLossesSerializer(serializers.ModelSerializer):
@@ -278,9 +328,17 @@ class WaterAssessmentbyExternalAgencySerializer(serializers.ModelSerializer):
 
 
 class WaterIntensitySerializer(serializers.ModelSerializer):
+    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Water_Intensity
         fields = '__all__'
+        
+    def get_attachments(self, obj):
+        attachments = Attachment.objects.filter(
+            parent_type="water_intensity",
+            parent_id=obj.id
+        )
+        return AttachmentSerializer(attachments, many=True).data
 
 class WaterStressAreasSerializer(serializers.ModelSerializer):
     class Meta:
@@ -289,32 +347,72 @@ class WaterStressAreasSerializer(serializers.ModelSerializer):
 
 
 class WaterWithdrawalBySourceSerializer(serializers.ModelSerializer):
+    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Water_withdrawal_By_Source
         fields = '__all__'
 
+    def get_attachments(self, obj):
+        attachments = Attachment.objects.filter(
+            parent_type="water_withdrawl",
+            parent_id=obj.id
+        )
+        return AttachmentSerializer(attachments, many=True).data
 
 class WaterConsumptionSerializer(serializers.ModelSerializer):
+    attachments = serializers.SerializerMethodField()
+
     class Meta:
         model = Water_Consumption
         fields = '__all__'
+        
+    def get_attachments(self, obj):
+        attachments = Attachment.objects.filter(
+            parent_type="water_consumption",
+            parent_id=obj.id
+        )
+        return AttachmentSerializer(attachments, many=True).data
+
 
 class Water_Discharge_To_Destination_Without_TreatmentSerializer(serializers.ModelSerializer):
+    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Water_Discharge_To_Destination_Without_Treatment
         fields = '__all__'        
+        
+    def get_attachments(self, obj):
+        attachments = Attachment.objects.filter(
+            parent_type="without_treatment",
+            parent_id=obj.id
+        )
+        return AttachmentSerializer(attachments, many=True).data
 
 
 class Water_Discharge_To_Destination_With_TreatmentSerializer(serializers.ModelSerializer):
+    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Water_Discharge_To_Destination_With_Treatment
         fields = '__all__'        
 
+    def get_attachments(self, obj):
+        attachments = Attachment.objects.filter(
+            parent_type="with_treatment",
+            parent_id=obj.id
+        )
+        return AttachmentSerializer(attachments, many=True).data
 
 class Air_Emissions_Other_Than_GHG_EmissionsSerializer(serializers.ModelSerializer):
+    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Air_Emissions_Other_Than_GHG_Emissions
         fields = '__all__'
+        
+    def get_attachments(self, obj):
+        attachments = Attachment.objects.filter(
+            parent_type="ghg_emissions",
+            parent_id=obj.id
+        )
+        return AttachmentSerializer(attachments, many=True).data
                 
 ###########################################    Waste     ##########################################################
 
@@ -326,29 +424,61 @@ class WasteAssessmentbyExternalAgencySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class WasteGeneratedSerializer(serializers.ModelSerializer):
+    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Waste_Generated
         fields = '__all__'       
+        
+    def get_attachments(self, obj):
+        attachments = Attachment.objects.filter(
+            parent_type="waste_generated",
+            parent_id=obj.id
+        )
+        return AttachmentSerializer(attachments, many=True).data
 
 
 class WasteRecoveredSerializer(serializers.ModelSerializer):
+    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Waste_Recovered
         fields = '__all__'
+        
+    def get_attachments(self, obj):
+        attachments = Attachment.objects.filter(
+            parent_type="waste_recovered",
+            parent_id=obj.id
+        )
+        return AttachmentSerializer(attachments, many=True).data
 
          
 
 class WasteDisposedSerializer(serializers.ModelSerializer):
+    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Waste_Disposed
         fields = '__all__'
+        
+    def get_attachments(self, obj):
+        attachments = Attachment.objects.filter(
+            parent_type="waste_disposed",
+            parent_id=obj.id
+        )
+        return AttachmentSerializer(attachments, many=True).data
 
 
 
 class WasteIntensitySerializer(serializers.ModelSerializer):
+    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Waste_Intensity
         fields = '__all__'
+        
+    def get_attachments(self, obj):
+        attachments = Attachment.objects.filter(
+            parent_type="waste_intensity",
+            parent_id=obj.id
+        )
+        return AttachmentSerializer(attachments, many=True).data
 
 #############################################  Sustainability    ########################################################
 
