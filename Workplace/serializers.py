@@ -157,6 +157,7 @@ class IngeneralSerializer(serializers.ModelSerializer):
             parent_id=obj.id
         )
         return AttachmentSerializer(attachments, many=True).data
+    
 
 
 class OnSkillUpgradationSerializer(serializers.ModelSerializer):
