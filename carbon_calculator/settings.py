@@ -47,8 +47,7 @@ env.read_env(BASE_DIR / '.env')
 SECRET_KEY = '6-lndcev^5l!*%6@hg&zk&g*@h7fxnrwn--#e4_-dh0g(8s^@x'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = env.bool('DEBUG', True)
-DEBUG = True
+DEBUG = env.bool('DEBUG', False)
 
 ALLOWED_HOSTS = ["*"]
 # ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
