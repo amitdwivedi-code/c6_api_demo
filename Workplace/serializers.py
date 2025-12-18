@@ -49,31 +49,15 @@ class Workers_Membership_In_Association_Or_UnionsSerializer(serializers.ModelSer
         fields = '__all__'
 
 class Management_Board_of_DirectorsSerializer(serializers.ModelSerializer):
-    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Management_Board_of_Directors
         fields = '__all__'
-    
-    def get_attachments(self, obj): 
-        attachments = Attachment.objects.filter( 
-            parent_type="Management", 
-            parent_id=obj.id 
-        ) 
-        return AttachmentSerializer(attachments, many=True).data
 
 
 class Key_Management_PersonnelSerializer(serializers.ModelSerializer):
-    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Key_Management_Personnel
         fields = '__all__'
-    
-    def get_attachments(self, obj): 
-        attachments = Attachment.objects.filter( 
-            parent_type="Key_Management_Personel", 
-            parent_id=obj.id 
-        ) 
-        return AttachmentSerializer(attachments, many=True).data
 
 class EmployeeSummarySerializer(serializers.ModelSerializer):
     class Meta:
@@ -146,17 +130,9 @@ Serializer for training app
 
 
 class IngeneralSerializer(serializers.ModelSerializer):
-    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Ingeneral
         fields = '__all__'
-
-    def get_attachments(self, obj):
-        attachments = Attachment.objects.filter(
-            parent_type="Training_Manhours",
-            parent_id=obj.id
-        )
-        return AttachmentSerializer(attachments, many=True).data
 
 
 class OnSkillUpgradationSerializer(serializers.ModelSerializer):
@@ -190,6 +166,7 @@ class OnHumanRightsIssuesAndPoliciesSerializer(serializers.ModelSerializer):
         model = On_Human_Rights_Issues_And_Policies
         fields = '__all__'
 
+
 """
 ****************************************************************************
 Serializer for health and sefty
@@ -221,61 +198,30 @@ class PostPaternalLeaveForPermanentEmployeeAndWorkerSerializer(serializers.Model
 
 
 class LostTimeInjuryFrequencyRateSerializer(serializers.ModelSerializer):
-    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Lost_Time_Injury_Frequency_Rate
         fields ='__all__'
-
-    def get_attachments(self, obj):
-        attachments = Attachment.objects.filter(
-            parent_type="Lost_Time_Injury_Frequency_Rate",
-            parent_id=obj.id
-        )
-        return AttachmentSerializer(attachments, many=True).data
 
 
         
 
 class TotalWorkRelatedInjuriesSerializer(serializers.ModelSerializer):
-    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Total_Work_Related_Injuries
         fields ='__all__'
-    
-    def get_attachments(self, obj):
-        attachments = Attachment.objects.filter(
-            parent_type="Total_Work_Related_Injuries",
-            parent_id=obj.id
-        )
-        return AttachmentSerializer(attachments, many=True).data
-
 
 class NoOfFatalitiesSerializer(serializers.ModelSerializer):
-    attachments = serializers.SerializerMethodField()
     class Meta:
         model = No_Of_Fatalities
         fields ='__all__'
 
-    def get_attachments(self, obj):
-        attachments = Attachment.objects.filter(
-            parent_type="Fatalities",
-            parent_id=obj.id
-        )
-        return AttachmentSerializer(attachments, many=True).data
-
         
 class InjuryOrIllHealthSerializer(serializers.ModelSerializer):
-    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Injury_Or_Ill_Health
         fields ='__all__'
 
-    def get_attachments(self, obj):
-        attachments = Attachment.objects.filter(
-            parent_type="Injury_ILL_Health",
-            parent_id=obj.id
-        )
-        return AttachmentSerializer(attachments, many=True).data
+        
 
 class SufferedHighConsequenceWorkRelatedInjurySerializer(serializers.ModelSerializer):
     class Meta:
