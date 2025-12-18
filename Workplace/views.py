@@ -7262,16 +7262,8 @@ class AttachmentView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        parent_type = request.data.get("parent_type")
-        parent_id = request.data.get("parent_id")
-
-        if not parent_type or not parent_id:
-            return Response(
-                {"error": "parent_type and parent_id are required"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
         files = request.FILES.getlist("file")
+
         if not files:
             return Response(
                 {"error": "No files provided"},
@@ -7281,7 +7273,6 @@ class AttachmentView(APIView):
         created = []
 
         for file in files:
-            # Auto increment ID
             if Attachment.objects.count() == 0:
                 attachment_id = 1
             else:
@@ -7289,14 +7280,23 @@ class AttachmentView(APIView):
                     Attachment.objects.aggregate(Max("id"))["id__max"] + 1
                 )
 
-            attachment = Attachment.objects.create(
-                id=attachment_id,
-                parent_type=parent_type,
-                parent_id=int(parent_id),
-                file=file
-            )
+            data = {
+                "id": attachment_id,
+                "parent_type": request.data.get("parent_type"),
+                "parent_id": request.data.get("parent_id"),
+                "file": file,
+            }
 
-            created.append(AttachmentSerializer(attachment).data)
+            serializer = AttachmentSerializer(data=data)
+
+            if not serializer.is_valid():
+                return Response(
+                    serializer.errors,
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            attachment = serializer.save()
+            created.append(serializer.data)
 
         return Response(
             {
@@ -7305,7 +7305,6 @@ class AttachmentView(APIView):
             },
             status=status.HTTP_201_CREATED
         )
-
 
     def delete(self, request, id):
         try:
