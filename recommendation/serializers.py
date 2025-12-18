@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import RecommendationModel,SOPDocument
+from .models import RecommendationModel
 
 class RecommendationSerializer(serializers.ModelSerializer):
 
@@ -11,19 +11,3 @@ class RecommendationSerializer(serializers.ModelSerializer):
             'Financial_Year': {'required': True, 'allow_blank': False},
         }
         
-class SOPDocumentSerializer(serializers.ModelSerializer):
-    id = serializers.SerializerMethodField()
-
-    class Meta:
-        model = SOPDocument
-        fields = [
-            'id',
-            'name',
-            'description',
-            'file',
-            'uploaded_by',
-            'updated_at'
-        ]
-
-    def get_id(self, obj):
-        return str(obj._id)

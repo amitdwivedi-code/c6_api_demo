@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import *
-from Workplace.models import Attachment
-from Workplace.serializers import AttachmentSerializer
+
 
 class EnergyAssessmentbyExternalAgencySerializer(serializers.ModelSerializer):
     class Meta:
@@ -11,17 +10,9 @@ class EnergyAssessmentbyExternalAgencySerializer(serializers.ModelSerializer):
 
 
 class ElectricityConsumptionmwhSerializer(serializers.ModelSerializer):
-    attachments = serializers.SerializerMethodField()
     class Meta:
         model = Electricity_Consumption_mwh
         fields = '__all__'
-
-    def get_attachments(self, obj):
-        attachments = Attachment.objects.filter(
-            parent_type="Electricity_Consumption_mwh",
-            parent_id=obj.id
-        )
-        return AttachmentSerializer(attachments, many=True).data
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
