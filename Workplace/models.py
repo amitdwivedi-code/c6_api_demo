@@ -895,7 +895,43 @@ class Attachment(models.Model):
     
     parent_type = models.CharField(
         max_length=100,
-        choices=[("Employees", "Employees"), ("Workers", "Workers")]
+        choices=[
+        ("Electricity_Consumption_mwh", "Electricity_Consumption_mwh"),
+        ("Onsite_Combustion", "Onsite_Combustion"),
+        ("onsite_vehicle", "onsite_vehicle"),
+        ("in_bound", "in_bound"),
+        ("out_bound", "out_bound"),
+        ("business_travel", "business_travel"),
+        ("employee_commuting", "employee_commuting"),
+        ("energy_consumption", "energy_consumption"),
+        ("process_emissions", "process_emissions"),
+        ("water_intensity", "water_intensity"),
+        ("water_withdrawl", "water_withdrawl"),
+        ("water_consumption", "water_consumption"),
+        ("without_treatment", "without_treatment"),
+        ("with_treatment", "with_treatment"),
+        ("ghg_emissions", "ghg_emissions"),
+        ("waste_intensity", "waste_intensity"),
+        ("waste_generated", "waste_generated"),
+        ("waste_recovered", "waste_recovered"),
+        ("waste_disposed", "waste_disposed"),
+        ("Employees", "Employees"),
+        ("Differently_Abled_Employees", "Differently_Abled_Employees"),
+        ("Employee_Turnover_Rate", "Employee_Turnover_Rate"),
+        ("Workers", "Workers"),
+        ("Differently_Abled_Workers", "Differently_Abled_Workers"),
+        ("Workers_Turnover_Rate", "Workers_Turnover_Rate"),
+        ("Management", "Management"),
+        ("Key_Management_Personel", "Key_Management_Personel"),
+        ("Training_Manhours", "Training_Manhours"),
+        ("Lost_Time_Injury_Frequency_Rate", "Lost_Time_Injury_Frequency_Rate"),
+        ("Total_Work_Related_Injuries", "Total_Work_Related_Injuries"),
+        ("Fatalities", "Fatalities"),
+        ("Injury_ILL_Health", "Injury_ILL_Health"),
+        ("Turnover_In_CR", "Turnover_In_CR"),
+        ("Networth_In_CR", "Networth_In_CR"),
+            
+        ]
     )
     parent_id = models.IntegerField()
 
