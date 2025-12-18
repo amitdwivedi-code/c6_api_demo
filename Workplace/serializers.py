@@ -32,7 +32,7 @@ class WorkersSerializer(serializers.ModelSerializer):
         
     def get_attachments(self, obj):
         attachments = Attachment.objects.filter(
-            parent_type="Employees",
+            parent_type="Workers",
             parent_id=obj.id
         )
         return AttachmentSerializer(attachments, many=True).data
@@ -405,6 +405,28 @@ class Disciplinary_Action_Against_For_curruptionSerializer(serializers.ModelSeri
         
 
 class AttachmentSerializer(serializers.ModelSerializer):
+    parent_type = serializers.ChoiceField(
+        choices=["Employees", "Workers", "Electricity_Consumption_mwh", "Onsite_Combustion",
+                    "Differently_Abled_Employees",
+                    "Employee_Turnover_Rate",
+                    "Differently_Abled_Workers",
+                    "Workers_Turnover_Rate",
+                    "Management",
+                    "Key_Management_Personel",
+                    "Training_Manhours",
+                    "Lost_Time_Injury_Frequency_Rate",
+                    "Total_Work_Related_Injuries",
+                    "Fatalities",
+                    "Injury_ILL_Health",
+                    "onsite_vehicle","in_bound","out_bound",
+                    "business_travel","employee_commuting", 
+                    "energy_consumption","process_emissions",
+                    "water_withdrawl","water_consumption", 
+                    "without_treatment", "with_treatment","ghg_emissions",
+                    "water_intensity", "water_generated",
+                    "water_recovered", "water_disposed", "waste_intensity"
+                ]
+    )
     class Meta:
         model = Attachment
         fields = "__all__"
